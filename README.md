@@ -35,3 +35,9 @@ Statik site (HTML + CSS + JS), derleme adımı yok. Herhangi bir sunucuya olduğ
 - Kurulum dosyaları: `supabase/schema.sql` (tablolar, güvenlik kuralları, fotoğraf alanı) ve
   `supabase/seed.sql` (ilk ürünler).
 - Kategoriler hâlâ `assets/js/data.js` içinde tanımlı; yeni kategori gerekirse oraya eklenir.
+
+## Yayın (Cloudflare Pages)
+- Cloudflare Pages, GitHub deposuna bağlıdır; `main` dalına her gönderimde site otomatik yayınlanır.
+- Derleme ayarları: Build command `sh build.sh`, Build output directory `dist`.
+- `build.sh` yalnızca site dosyalarını `dist/` klasörüne kopyalar (SQL ve README yayına çıkmaz).
+- `_headers`: güvenlik başlıkları, yönetim panelinin arama motorlarına kapalı olması, font ve kütüphanelerin önbellek süresi.
