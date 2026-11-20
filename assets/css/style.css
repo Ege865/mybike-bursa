@@ -757,3 +757,20 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
 .legal-h3 { font-size: 17px; color: var(--ink); margin: 24px 0 10px; font-weight: 600; }
 .legal-dl > div { display: contents; }
 .legal-dl > div[hidden] { display: none; }
+
+/* ---------- Ana sayfa kategori kutuları ---------- */
+.cat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.cat-tile {
+  display: grid; grid-template-rows: auto 1fr; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); overflow: hidden;
+  transition: transform var(--t) var(--ease-out), box-shadow var(--t), border-color var(--t);
+}
+.cat-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: transparent; }
+.cat-tile .frame { aspect-ratio: 4 / 3; border-radius: 0; }
+.cat-tile:hover .frame > .ph { transform: scale(1.03); }
+.cat-tile-body { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px 20px; }
+.cat-tile-body h3 { font-size: 22px; }
+.cat-tile-body p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.cat-tile:hover .round-arrow { transform: translateX(4px); }
+@media (max-width: 980px) { .cat-grid { grid-template-columns: 1fr 1fr; } .cat-grid .cat-tile:last-child { grid-column: 1 / -1; } .cat-grid .cat-tile:last-child .frame { aspect-ratio: 16 / 7; } }
+@media (max-width: 720px) { .cat-grid { grid-template-columns: 1fr; gap: 12px; } .cat-grid .cat-tile:last-child .frame { aspect-ratio: 4 / 3; } }
