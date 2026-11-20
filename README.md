@@ -26,3 +26,12 @@ Statik site (HTML + CSS + JS), derleme adımı yok. Herhangi bir sunucuya olduğ
   "hareketi azalt" tercihinde kapanır.
 - Logo `assets/img/logo.jpg` siyah zeminli; koyu alanlarda `mix-blend-mode: screen` ile
   zemin görünmez. Şeffaf PNG/SVG logo gelirse bu ayara gerek kalmaz.
+
+## Supabase ve yönetim paneli
+- Ürünler Supabase'deki `products` tablosundan okunur (`assets/js/store.js`). Bağlantı kurulamazsa
+  `assets/js/data.js` içindeki liste gösterilir.
+- Yönetim paneli: `admin.html` (arama motorlarına kapalı). Supabase'de oluşturulan ve `admins`
+  tablosuna eklenen hesapla giriş yapılır; ürün ekleme, düzenleme, silme, fiyat ve fotoğraf yükleme.
+- Kurulum dosyaları: `supabase/schema.sql` (tablolar, güvenlik kuralları, fotoğraf alanı) ve
+  `supabase/seed.sql` (ilk ürünler).
+- Kategoriler hâlâ `assets/js/data.js` içinde tanımlı; yeni kategori gerekirse oraya eklenir.

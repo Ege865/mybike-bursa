@@ -541,15 +541,21 @@
   }
 
   /* ---------------- Başlat ---------------- */
+  window.MYBIKE.ui = { icon, ph, tl, esc, nodes, pathTo, catName };
+  const page = document.body.dataset.page;
+  if (page === "admin") return; // yönetim paneli kendi arayüzünü kurar
+
   renderHeader();
   renderFooter();
   hydratePlaceholders();
-  const page = document.body.dataset.page;
-  if (page === "home") renderHome();
-  if (page === "shop") renderShop();
-  if (page === "product") renderProduct();
-  if (page === "atolye") renderWorkshop();
-  renderCartShell();
 
-  window.MYBIKE.ui = { icon, ph };
+  // Ürünler Supabase'den gelir (assets/js/store.js); gelmezse data.js'teki liste kullanılır
+  Promise.resolve(window.MYBIKE.ready).catch(() => {}).then(() => {
+    if (page === "home") renderHome();
+    if (page === "shop") renderShop();
+    if (page === "product") renderProduct();
+    if (page === "atolye") renderWorkshop();
+    renderCartShell();
+    if (window.ScrollTrigger) requestAnimationFrame(() => ScrollTrigger.refresh());
+  });
 })();
