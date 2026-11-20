@@ -401,10 +401,10 @@
     const fill = (el, list) => { if (!el) return; if (!list.length) { el.closest("section").remove(); return; } el.innerHTML = list.slice(0, 4).map(card).join(""); };
     fill(prot, productsIn("koruma"));
 
-    // Kategori kutuları: sırayla Bisikletler, Yedek Parça, Aksesuarlar
+    // Kategori kutuları: sırayla Bisikletler, Yedek Parça, Aksesuarlar, Koruma Ekipmanları
     const tiles = $("[data-cat-tiles]");
     if (tiles) {
-      tiles.innerHTML = ["bisikletler", "yedek-parca", "aksesuar"].map((id) => {
+      tiles.innerHTML = ["bisikletler", "yedek-parca", "aksesuar", "koruma"].map((id) => {
         const c = nodes.get(id).node;
         const list = productsIn(id);
         const pic = list.find((p) => p.img);
