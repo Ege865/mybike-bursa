@@ -16,8 +16,8 @@ MYBIKE.categories = [
     lead: "Parkura göre seçilmiş enduro, downhill, XC, hardtail ve dirt jump bisikletler.",
     children: [
       /* img: disiplin kutusundaki görsel; fit: "contain" beyaz zeminli stüdyo fotoğrafları için (kırpılmadan sığdırır) */
-      { id: "enduro", name: "Enduro", note: "150–180 mm, tırmanıp inen bisikletler", img: "assets/img/disiplin/enduro.jpg" },
-      { id: "downhill", name: "Downhill", note: "180–203 mm, park ve yarış", img: "assets/img/disiplin/downhill.jpg" },
+      { id: "enduro", name: "Enduro", note: "150–180 mm, tırmanıp inen bisikletler", img: "assets/img/disiplin/enduro-capra.jpg", fit: "contain" },
+      { id: "downhill", name: "Downhill", note: "180–203 mm, park ve yarış", img: "assets/img/disiplin/downhill-propain.jpg", fit: "contain" },
       { id: "xc", name: "XC", note: "Hafif, hızlı, uzun mesafe", img: "assets/img/disiplin/xc.jpg", fit: "contain" },
       { id: "hardtail", name: "Hardtail", note: "Arka süspansiyonsuz, sade ve sağlam", img: "assets/img/disiplin/hardtail.jpg", fit: "contain" },
       { id: "dirt-jump", name: "Dirt Jump", note: "26\" kadro, pump track ve rampa", img: "assets/img/disiplin/dirt-jump.jpg", fit: "contain" }
