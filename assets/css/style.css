@@ -780,3 +780,7 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
 @media (max-width: 1180px) { .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cat-tile .frame { aspect-ratio: 4 / 3; } }
 @media (max-width: 980px) { .cat-grid .cat-tile:last-child { grid-column: auto; } .cat-grid .cat-tile:last-child .frame { aspect-ratio: 4 / 3; } }
 @media (max-width: 720px) { .cat-grid { grid-template-columns: 1fr; } }
+
+/* Beyaz zeminli stüdyo fotoğrafları: kırpmadan sığdır */
+.frame.fit-contain, .frame.fit-contain .ph { background: #fff; }
+.frame.fit-contain .ph img { object-fit: contain; padding: 6%; }

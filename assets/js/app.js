@@ -161,7 +161,7 @@
   function megaFor(cat) {
     const intro = `<div class="mega-intro"><h3>${esc(cat.name)}</h3><p>${esc(cat.lead || "")}</p><a class="link" href="${shopUrl(cat.id)}">Tüm ${esc(cat.name.toLocaleLowerCase("tr"))} ${icon("arrow")}</a></div>`;
     if (cat.id === "bisikletler") {
-      const tiles = cat.children.map((c) => `<a class="mega-tile" href="${shopUrl(c.id)}"><div class="frame">${ph(null, c.name)}</div><span>${esc(c.name)}</span></a>`).join("");
+      const tiles = cat.children.map((c) => `<a class="mega-tile" href="${shopUrl(c.id)}"><div class="frame${c.fit === "contain" ? " fit-contain" : ""}">${ph(c.img, c.name, { alt: c.name + " bisiklet" })}</div><span>${esc(c.name)}</span></a>`).join("");
       return `<div class="mega"><div class="wrap">${intro}<div class="mega-cols mega-cols--tiles">${tiles}</div></div></div>`;
     }
     const cols = cat.children.map((g) => {
@@ -376,7 +376,7 @@
       disc.innerHTML = M.categories[0].children.map((c) => {
         const n = productsIn(c.id).length;
         return `<a class="disc" href="${shopUrl(c.id)}">
-          <div class="frame">${ph(null, c.name + " bisiklet fotoğrafı")}</div>
+          <div class="frame${c.fit === "contain" ? " fit-contain" : ""}">${ph(c.img, c.name + " bisiklet fotoğrafı", { alt: c.name + " bisiklet" })}</div>
           <div class="disc-body"><h3>${esc(c.name)} ${icon("arrow")}</h3><p>${esc(c.note)}</p><span class="count">${n ? n + " model" : "Yakında"}</span></div>
         </a>`;
       }).join("");
