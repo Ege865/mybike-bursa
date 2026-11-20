@@ -493,7 +493,7 @@ main { padding-top: var(--header-h); }
 /* ---------- Product detail ---------- */
 .pdp { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(28px, 4vw, 56px); padding-bottom: 72px; align-items: start; }
 .gallery { display: grid; gap: 12px; }
-.gallery .main { aspect-ratio: 1 / 1; border-radius: var(--radius-l); background: var(--card); border: 1px solid var(--line); }
+.gallery .main { aspect-ratio: 4 / 5; border-radius: var(--radius-l); background: var(--card); border: 1px solid var(--line); }
 .gallery .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .gallery .thumbs button { aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--card); transition: border-color var(--t-fast); }
 .gallery .thumbs button[aria-pressed="true"], .gallery .thumbs button:hover { border-color: var(--ink); }
@@ -726,3 +726,7 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
 }
+
+/* Fiyatı girilmemiş ürünler */
+.p-price b.ask { font-size: 15px; font-weight: 600; white-space: nowrap; }
+@media (max-width: 720px) { .p-price { min-width: 0; } .p-price b.ask { white-space: normal; font-size: 14px; line-height: 1.25; } }

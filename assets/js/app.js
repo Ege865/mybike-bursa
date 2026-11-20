@@ -17,7 +17,8 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const tl = (n) => new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
+  const tl = (n) => (n == null || Number.isNaN(n)) ? "Fiyat sorunuz" : new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
+  const lineTl = (p, q) => tl(p.price == null ? null : p.price * q);
 
   /* ---------------- Icons (Lucide çizgi seti, 24px) ---------------- */
   const P = {
@@ -110,7 +111,7 @@
         <span class="p-cat">${esc(catName(p.cat))}</span>
         <h3 class="p-name"><a href="${productUrl(p.id)}">${esc(p.name)}</a></h3>
         <div class="p-foot">
-          <div class="p-price">${old}<b>${tl(p.price)}</b></div>
+          <div class="p-price">${old}<b${p.price == null ? ' class="ask"' : ""}>${tl(p.price)}</b></div>
           <button class="add-btn" type="button" data-add="${p.id}" aria-label="Sepete ekle: ${esc(p.name)}">${icon("cart")}</button>
         </div>
       </div>
@@ -311,12 +312,14 @@
         <div><h3><a href="${productUrl(id)}">${esc(p.name)}</a></h3>
           <div class="mini-qty"><button type="button" data-step="-1" data-id="${id}" aria-label="Bir azalt">${icon("minus")}</button><span>${q}</span><button type="button" data-step="1" data-id="${id}" aria-label="Bir artır">${icon("plus")}</button></div>
           <button class="rm" type="button" data-rm="${id}">Kaldır</button></div>
-        <span class="line-total">${tl(p.price * q)}</span>
+        <span class="line-total">${lineTl(p, q)}</span>
       </div>`;
     }).join("");
-    const lines = items.map(([id, q]) => `${q} x ${byId(id).name} — ${tl(byId(id).price * q)}`).join("\n");
-    const mail = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Sipariş talebi")}&body=${encodeURIComponent("Merhaba, aşağıdaki ürünleri sipariş etmek istiyorum:\n\n" + lines + "\n\nToplam: " + tl(cartTotal()) + "\n\nAd Soyad:\nTelefon:\nTeslimat (kargo / atölyeden alım):")}`;
-    foot.innerHTML = `<div class="sum"><span>Toplam</span><b>${tl(cartTotal())}</b></div>
+    const lines = items.map(([id, q]) => `${q} x ${byId(id).name} — ${lineTl(byId(id), q)}`).join("\n");
+    const unpriced = items.some(([id]) => byId(id).price == null);
+    const mail = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Sipariş talebi")}&body=${encodeURIComponent("Merhaba, aşağıdaki ürünleri sipariş etmek istiyorum:\n\n" + lines + "\n\nToplam: " + tl(cartTotal()) + (unpriced ? " (fiyatı sorulacak ürünler hariç)" : "") + "\n\nAd Soyad:\nTelefon:\nTeslimat (kargo / atölyeden alım):")}`;
+    foot.innerHTML = `<div class="sum"><span>Toplam</span><b>${cartTotal() ? tl(cartTotal()) + (unpriced ? " +" : "") : tl(null)}</b></div>
+      ${unpriced ? `<p class="note">Fiyatı yazmayan ürünlerin fiyatını talebine dönüşte bildiriyoruz.</p>` : ""}
       <a class="btn btn--block" href="${mail}">Sipariş talebi gönder ${icon("arrow")}</a>
       <p class="note">Talebin e-posta ile bize ulaşır; stok ve teslimatı onaylamak için sana dönüyoruz.</p>`;
   }
@@ -329,7 +332,7 @@
         const n = productsIn(c.id).length;
         return `<a class="disc" href="${shopUrl(c.id)}">
           <div class="frame">${ph(null, c.name + " bisiklet fotoğrafı")}</div>
-          <div class="disc-body"><h3>${esc(c.name)} ${icon("arrow")}</h3><p>${esc(c.note)}</p><span class="count">${n} model</span></div>
+          <div class="disc-body"><h3>${esc(c.name)} ${icon("arrow")}</h3><p>${esc(c.note)}</p><span class="count">${n ? n + " model" : "Yakında"}</span></div>
         </a>`;
       }).join("");
     }
@@ -350,9 +353,10 @@
       }).join("");
     }
     const prot = $("[data-protection]");
-    if (prot) prot.innerHTML = productsIn("koruma").slice(0, 4).map(card).join("");
+    const fill = (el, list) => { if (!el) return; if (!list.length) { el.closest("section").remove(); return; } el.innerHTML = list.slice(0, 4).map(card).join(""); };
+    fill(prot, productsIn("koruma"));
     const acc = $("[data-accessories]");
-    if (acc) acc.innerHTML = productsIn("aksesuar").slice(0, 4).map(card).join("");
+    fill(acc, productsIn("aksesuar"));
   }
 
   /* ---------------- Sayfa: Mağaza ---------------- */
@@ -421,10 +425,10 @@
       const needle = q.toLocaleLowerCase("tr");
       list = list.filter((p) => (p.name + " " + catName(p.cat) + " " + pathTo(p.cat).map((n) => n.name).join(" ")).toLocaleLowerCase("tr").includes(needle));
     }
-    if (min) list = list.filter((p) => p.price >= min);
-    if (max) list = list.filter((p) => p.price <= max);
-    if (sort === "artan") list.sort((a, b) => a.price - b.price);
-    if (sort === "azalan") list.sort((a, b) => b.price - a.price);
+    if (min) list = list.filter((p) => p.price != null && p.price >= min);
+    if (max) list = list.filter((p) => p.price != null && p.price <= max);
+    if (sort === "artan") list.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
+    if (sort === "azalan") list.sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
     if (sort === "yeni") list.sort((a, b) => (b.badge === "Yeni") - (a.badge === "Yeni"));
 
     $("[data-count]").textContent = `${list.length} ürün`;
@@ -453,12 +457,12 @@
     const isBike = trail[0].id === "bisikletler";
     const specs = p.specs ? `<h2>Teknik özellikler</h2><table class="specs"><tbody>${Object.entries(p.specs).map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table>` :
       `<h2>Ürün bilgisi</h2><p class="note">Uyumluluk (teker çapı, aks standardı, kelepçe çapı) için sipariş öncesi bize danış; bisikletine uygun olanı birlikte seçelim.</p>`;
-    const imgs = p.images || [];
+    const imgs = p.images || (p.img ? [p.img] : []);
     let qty = 1;
     root.innerHTML = `
       <div class="gallery">
         <div class="main frame">${ph(imgs[0] || p.img, "Ürün fotoğrafı — ana görsel", { alt: p.name })}</div>
-        <div class="thumbs">${[0, 1, 2, 3].map((i) => `<button type="button" aria-pressed="${i === 0}" aria-label="${i + 1}. görsel">${ph(imgs[i], "")}</button>`).join("")}</div>
+        ${imgs.length > 1 ? `<div class="thumbs">${imgs.slice(0, 4).map((src, i) => `<button type="button" aria-pressed="${i === 0}" aria-label="${i + 1}. görseli göster">${ph(src, "", { alt: "" })}</button>`).join("")}</div>` : ""}
       </div>
       <div class="buy">
         <div>
@@ -484,6 +488,9 @@
     }));
     $$(".thumbs button", root).forEach((b) => b.addEventListener("click", () => {
       $$(".thumbs button", root).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      const src = b.querySelector("img");
+      const main = $(".gallery .main img", root);
+      if (src && main) main.src = src.src;
     }));
 
     const rel = $("[data-related]");
@@ -491,7 +498,8 @@
       const parent = nodes.get(p.cat).parent || nodes.get(p.cat).node;
       let list = productsIn(parent.id).filter((x) => x.id !== p.id);
       if (list.length < 4) list = list.concat(productsIn(trail[0].id).filter((x) => x.id !== p.id && !list.includes(x)));
-      rel.innerHTML = list.slice(0, 4).map(card).join("");
+      if (list.length) rel.innerHTML = list.slice(0, 4).map(card).join("");
+      else rel.closest("section").remove();
     }
   }
 
