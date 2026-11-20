@@ -36,8 +36,7 @@ Statik site (HTML + CSS + JS), derleme adımı yok. Herhangi bir sunucuya olduğ
   `supabase/seed.sql` (ilk ürünler).
 - Kategoriler hâlâ `assets/js/data.js` içinde tanımlı; yeni kategori gerekirse oraya eklenir.
 
-## Yayın (Cloudflare Pages)
-- Cloudflare Pages, GitHub deposuna bağlıdır; `main` dalına her gönderimde site otomatik yayınlanır.
-- Derleme ayarları: Build command `sh build.sh`, Build output directory `dist`.
-- `build.sh` yalnızca site dosyalarını `dist/` klasörüne kopyalar (SQL ve README yayına çıkmaz).
-- `_headers`: güvenlik başlıkları, yönetim panelinin arama motorlarına kapalı olması, font ve kütüphanelerin önbellek süresi.
+
+## Yayın (GitHub Pages)
+- Site GitHub Pages ile yayınlanır; `main` dalına her gönderimde otomatik güncellenir.
+- Adres: https://ege865.github.io/mybike-bursa/ (alan adı bağlanınca mybikes.com.tr)
