@@ -104,7 +104,7 @@
             <td>${p.img ? `<img class="a-thumb" src="${esc(p.img)}" alt="" loading="lazy">` : `<span class="a-thumb"></span>`}</td>
             <td><b>${esc(p.name)}</b>${p.badge ? ` <span class="pill-on">${esc(p.badge)}</span>` : ""}</td>
             <td class="hide-s">${esc(catLabel(p.cat))}</td>
-            <td>${p.price == null ? `<span class="note">Fiyat sorunuz</span>` : tl(Number(p.price))}</td>
+            <td>${p.price == null ? `<span class="note">Vitrin (fiyatsız)</span>` : tl(Number(p.price))}</td>
             <td class="hide-s">${p.active ? `<span class="pill-on">Yayında</span>` : `<span class="pill-off">Gizli</span>`}</td>
             <td><div class="a-row-actions">
               <button class="btn btn--ghost a-small" type="button" data-edit="${esc(p.id)}">Düzenle</button>
@@ -147,7 +147,7 @@
           <div class="field full"><label for="f-cat">Kategori</label><select id="f-cat" required>
             <option value="">Seçin</option>${leaves.map((l) => `<option value="${l.id}" ${p && p.cat === l.id ? "selected" : ""}>${esc(l.label)}</option>`).join("")}
           </select><p class="err"></p></div>
-          <div class="field"><label for="f-price">Fiyat (TL) — boş bırakılırsa "Fiyat sorunuz"</label><input id="f-price" type="number" min="0" step="1" inputmode="numeric" value="${p && p.price != null ? Number(p.price) : ""}"></div>
+          <div class="field"><label for="f-price">Fiyat (TL) — boş bırakılırsa ürün yalnızca vitrinde görünür, sepete eklenemez</label><input id="f-price" type="number" min="0" step="1" inputmode="numeric" value="${p && p.price != null ? Number(p.price) : ""}"></div>
           <div class="field"><label for="f-old">Eski fiyat (indirim için, isteğe bağlı)</label><input id="f-old" type="number" min="0" step="1" inputmode="numeric" value="${p && p.old_price != null ? Number(p.old_price) : ""}"></div>
           <div class="field"><label for="f-badge">Etiket</label><select id="f-badge">${BADGES.map((b) => `<option value="${b}" ${p && (p.badge || "") === b ? "selected" : ""}>${b || "Yok"}</option>`).join("")}</select></div>
           <div class="field"><label for="f-sort">Sıra (küçük sayı önce görünür)</label><input id="f-sort" type="number" step="1" value="${p ? p.sort : 100}"></div>

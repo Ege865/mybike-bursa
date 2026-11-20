@@ -55,7 +55,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const tl = (n) => (n == null || Number.isNaN(n)) ? "Fiyat sorunuz" : new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
+  const tl = (n) => (n == null || Number.isNaN(n)) ? "" : new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
   const lineTl = (p, q) => tl(p.price == null ? null : p.price * q);
 
   /* ---------------- Icons (Lucide çizgi seti, 24px) ---------------- */
@@ -137,6 +137,7 @@
   const shopUrl = (id) => `magaza.html?kat=${encodeURIComponent(id)}`;
   const productUrl = (id) => `urun.html?id=${encodeURIComponent(id)}`;
   const byId = (id) => M.products.find((p) => p.id === id);
+  const sellable = (id) => { const p = byId(id); return !!p && p.price != null; }; // fiyatsız ürün = vitrin
 
   /* ---------------- Ürün kartı ---------------- */
   function card(p) {
@@ -148,10 +149,10 @@
       <div class="p-body">
         <span class="p-cat">${esc(catName(p.cat))}</span>
         <h3 class="p-name"><a href="${productUrl(p.id)}">${esc(p.name)}</a></h3>
-        <div class="p-foot">
-          <div class="p-price">${old}<b${p.price == null ? ' class="ask"' : ""}>${tl(p.price)}</b></div>
+        ${p.price == null ? "" : `<div class="p-foot">
+          <div class="p-price">${old}<b>${tl(p.price)}</b></div>
           <button class="add-btn" type="button" data-add="${p.id}" aria-label="Sepete ekle: ${esc(p.name)}">${icon("cart")}</button>
-        </div>
+        </div>`}
       </div>
     </article>`;
   }
@@ -317,7 +318,7 @@
   function closeCart() { document.body.classList.remove("cart-open"); if (lastFocus) lastFocus.focus(); }
 
   function addToCart(id, qty, btn) {
-    if (!byId(id)) return;
+    if (!sellable(id)) return; // fiyatı olmayan ürünler yalnızca vitrin
     cart[id] = (cart[id] || 0) + qty; saveCart(); updateCart(true);
     toast(`${byId(id).name} sepete eklendi`);
     if (btn && btn.classList.contains("add-btn")) {
@@ -337,7 +338,11 @@
     });
     const body = $("[data-cart-body]"), foot = $("[data-cart-foot]");
     if (!body) return;
-    const items = Object.entries(cart).filter(([id]) => byId(id));
+    // Fiyatı kaldırılmış ya da silinmiş ürünler sepetten düşer
+    let pruned = false;
+    Object.keys(cart).forEach((id) => { if (!sellable(id)) { delete cart[id]; pruned = true; } });
+    if (pruned) { saveCart(); document.querySelectorAll("[data-cart-count]").forEach((el) => (el.textContent = cartCount())); }
+    const items = Object.entries(cart);
     if (!items.length) {
       body.innerHTML = `<div class="cart-empty">${icon("bag", 'style="width:40px;height:40px"')}<p>Sepetin boş. Bisikletlere ya da yedek parçalara göz at.</p><a class="btn btn--dark" href="magaza.html">Mağazaya git</a></div>`;
       foot.innerHTML = "";
@@ -354,13 +359,11 @@
       </div>`;
     }).join("");
     const lines = items.map(([id, q]) => `${q} x ${byId(id).name} — ${lineTl(byId(id), q)}`).join("\n");
-    const unpriced = items.some(([id]) => byId(id).price == null);
     const text = "Merhaba, My Bike sitesinden sipariş vermek istiyorum:\n\n" + lines +
-      "\n\nToplam: " + (cartTotal() ? tl(cartTotal()) : tl(null)) + (unpriced && cartTotal() ? " (fiyatı sorulacak ürünler hariç)" : "") +
+      "\n\nToplam: " + tl(cartTotal()) +
       "\nTeslimat: kargo / atölyeden alım";
     const wa = waUrl(text);
-    foot.innerHTML = `<div class="sum"><span>Toplam</span><b>${cartTotal() ? tl(cartTotal()) + (unpriced ? " +" : "") : tl(null)}</b></div>
-      ${unpriced ? `<p class="note">Fiyatı yazmayan ürünlerin fiyatını mesajına dönüşte bildiriyoruz.</p>` : ""}
+    foot.innerHTML = `<div class="sum"><span>Toplam</span><b>${tl(cartTotal())}</b></div>
       ${wa ? `<a class="btn btn--block btn--wa" href="${wa}" target="_blank" rel="noopener">${waIcon} WhatsApp ile sipariş ver</a>`
            : `<button class="btn btn--block" type="button" disabled>WhatsApp numarası eklenecek</button>`}
       <p class="note">Siparişin WhatsApp'ta hazır bir mesaj olarak açılır; gönderdiğinde bize ulaşır. Sitemiz bu bilgileri kaydetmez. Ayrıntılar: <a href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a>.</p>`;
@@ -511,11 +514,11 @@
           <p class="meta"><a class="link" href="${shopUrl(p.cat)}">${esc(catName(p.cat))}</a></p>
           <h1 style="margin-top:10px">${esc(p.name)}</h1>
         </div>
-        <div class="price">${p.oldPrice ? `<s>${tl(p.oldPrice)}</s>` : ""}<b>${tl(p.price)}</b></div>
+        ${p.price == null ? "" : `<div class="price">${p.oldPrice ? `<s>${tl(p.oldPrice)}</s>` : ""}<b>${tl(p.price)}</b></div>
         <div class="qty-row">
           <div class="qty"><button type="button" data-q="-1" aria-label="Adedi azalt">${icon("minus")}</button><output aria-live="polite" data-qv>1</output><button type="button" data-q="1" aria-label="Adedi artır">${icon("plus")}</button></div>
           <button class="btn" type="button" data-add="${p.id}" data-qty="1">${icon("cart")} Sepete ekle</button>
-        </div>
+        </div>`}
         <ul class="perks">
           <li>${icon("wrench")}<div><b>${isBike ? "Kurulum ve set-up" : "Atölyede montaj"}</b><span>${isBike ? "Teslimden önce süspansiyonu kilona ve sürüşüne göre ayarlayalım." :"Parçanı atölyede taktırabilir, ayarını yaptırabilirsin."}</span></div></li>
           <li>${icon("clipboard")}<div><b>Uyumluluk kontrolü</b><span>Siparişten önce bisikletine uyup uymadığını birlikte kontrol ediyoruz.</span></div></li>

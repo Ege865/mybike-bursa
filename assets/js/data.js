@@ -125,7 +125,7 @@ MYBIKE.categories = [
 
 /* badge: "Yeni" | "İndirim" — specs: ürün sayfasındaki teknik tablo */
 MYBIKE.products = [
-  /* price: null → sitede "Fiyat sorunuz" yazar. Fiyatı öğrenince sayı olarak yazın (ör. price: 4500). */
+  /* price: null → ürün yalnızca vitrinde görünür (fiyat ve sepet düğmesi yok). Satışa açmak için fiyat yazın (ör. price: 4500). */
   { id: "yt-dh", cat: "downhill", name: "YT Industries Downhill Bisikleti — Fox 40 / Float X2", price: null,
     img: "assets/img/urunler/yt-dh-4.jpg", images: ["assets/img/urunler/yt-dh-4.jpg", "assets/img/urunler/yt-dh-1.jpg", "assets/img/urunler/yt-dh-2.jpg", "assets/img/urunler/yt-dh-3.jpg"],
     specs: { "Ön maşa": "Fox 40 Factory, çift taç", "Arka amortisör": "Fox Float X2", "Ön lastik": "Maxxis Assegai", "Arka lastik": "Schwalbe Eddy Current" } },
