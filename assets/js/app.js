@@ -4,14 +4,52 @@
 (function () {
   "use strict";
 
+  /* ---- WhatsApp: mesaj müşterinin kendi WhatsApp'ında hazır açılır; site hiçbir veriyi kaydetmez ---- */
+  const waUrl = (text) => {
+    const n = String(CONTACT.whatsapp || "").replace(/\D/g, "");
+    return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : "";
+  };
+  const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:20px;height:20px"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35M12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.32l-.34-.2-3.57.94.95-3.48-.22-.36a9.4 9.4 0 0 1-1.44-5.02c0-5.2 4.24-9.44 9.45-9.44a9.38 9.38 0 0 1 6.68 2.77 9.38 9.38 0 0 1 2.76 6.68c0 5.21-4.24 9.44-9.44 9.44m8.04-17.48A11.3 11.3 0 0 0 12.05.7C5.78.7.68 5.8.68 12.06c0 2 .52 3.96 1.52 5.68L.58 23.7l6.1-1.6a11.36 11.36 0 0 0 5.37 1.37h.01c6.26 0 11.37-5.1 11.37-11.37 0-3.04-1.18-5.89-3.33-8.04"/></svg>';
+
   /* ---- İletişim bilgileri: yayına almadan önce gerçek bilgilerle değiştirin ---- */
   const CONTACT = {
-    email: "tolga abi buraya gmailini giricem",       // TODO: gerçek e-posta
-    emailLabel: "E-posta eklenecek",     // TODO: sitede görünen e-posta metni
-    phoneLabel: "Telefon eklenecek",     // TODO: gerçek telefon
+    email: "tolgaakdeniz16@gmail.com",
+    emailLabel: "tolgaakdeniz16@gmail.com",
+    phoneLabel: "+90 531 886 81 20",     // WhatsApp ile aynı numara
+    whatsapp: "905318868120",            // ülke koduyla, sadece rakam
     area: "Bursa",                       // TODO: ilçe / sokak
-    hours: "Pzt–Cmt 10:00–19:00"         // TODO: gerçek çalışma saatleri
+    hours: "Pzt–Cmt 10:00–19:00",        // TODO: gerçek çalışma saatleri
+    // KVKK metinleri için (doldurulursa aydınlatma metinlerinde otomatik görünür):
+    legalName: "",                       // ör. "Ad Soyad (şahıs işletmesi)" ya da şirket unvanı
+    address: ""                          // açık adres; boşsa "area" kullanılır
   };
+  const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || "");
+  const prettyPhone = (n) => { const d = String(n || "").replace(/\D/g, ""); return d ? "+" + d.replace(/^(\d{2})(\d{3})(\d{3})(\d{2})(\d{2})$/, "$1 $2 $3 $4 $5") : ""; };
+
+  /* Aydınlatma metinlerindeki [data-c] alanlarını CONTACT'tan doldurur; bilgi yoksa satırı gizler */
+  function fillContact() {
+    const email = validEmail(CONTACT.email) ? CONTACT.email : "";
+    const phone = CONTACT.phoneLabel && /\d/.test(CONTACT.phoneLabel) ? CONTACT.phoneLabel : "";
+    const wa = prettyPhone(CONTACT.whatsapp);
+    const vals = {
+      controller: CONTACT.legalName ? `${CONTACT.legalName} — My Bike Bursa` : null,
+      address: CONTACT.address || CONTACT.area || "Bursa",
+      phone, whatsapp: wa
+    };
+    document.querySelectorAll("[data-c]").forEach((el) => {
+      const k = el.dataset.c;
+      if (k === "email") { if (email) { el.textContent = email; el.href = "mailto:" + email; } return; }
+      if (k === "email-text") { if (email) el.textContent = email + " adresine"; return; }
+      if (k === "contact-sentence") {
+        const parts = [email && `${email} adresine yazabilir`, phone && `${phone} numarasını arayabilir`, wa && `WhatsApp'tan (${wa}) mesaj gönderebilir`].filter(Boolean);
+        if (parts.length) el.textContent = parts.join(", ") + " ya da atölyemize gelebilirsiniz.";
+        return;
+      }
+      if (vals[k]) el.textContent = vals[k];
+    });
+    const has = { email, phone, whatsapp: wa };
+    document.querySelectorAll("[data-c-row]").forEach((row) => { row.hidden = !has[row.dataset.cRow]; });
+  }
 
   const M = window.MYBIKE;
   const $ = (s, el = document) => el.querySelector(s);
@@ -236,7 +274,7 @@
       </div>
       <div class="foot-bottom"><div class="wrap">
         <span>© ${new Date().getFullYear()} My Bike Bursa. Tüm hakları saklıdır.</span>
-        <span><a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
+        <span><a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a> &nbsp;·&nbsp; <a class="link" href="gizlilik-cerez.html">Gizlilik ve Çerez Politikası</a> &nbsp;·&nbsp; <a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
       </div></div>
     </footer>`;
   }
@@ -317,11 +355,15 @@
     }).join("");
     const lines = items.map(([id, q]) => `${q} x ${byId(id).name} — ${lineTl(byId(id), q)}`).join("\n");
     const unpriced = items.some(([id]) => byId(id).price == null);
-    const mail = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Sipariş talebi")}&body=${encodeURIComponent("Merhaba, aşağıdaki ürünleri sipariş etmek istiyorum:\n\n" + lines + "\n\nToplam: " + tl(cartTotal()) + (unpriced ? " (fiyatı sorulacak ürünler hariç)" : "") + "\n\nAd Soyad:\nTelefon:\nTeslimat (kargo / atölyeden alım):")}`;
+    const text = "Merhaba, My Bike sitesinden sipariş vermek istiyorum:\n\n" + lines +
+      "\n\nToplam: " + (cartTotal() ? tl(cartTotal()) : tl(null)) + (unpriced && cartTotal() ? " (fiyatı sorulacak ürünler hariç)" : "") +
+      "\nTeslimat: kargo / atölyeden alım";
+    const wa = waUrl(text);
     foot.innerHTML = `<div class="sum"><span>Toplam</span><b>${cartTotal() ? tl(cartTotal()) + (unpriced ? " +" : "") : tl(null)}</b></div>
-      ${unpriced ? `<p class="note">Fiyatı yazmayan ürünlerin fiyatını talebine dönüşte bildiriyoruz.</p>` : ""}
-      <a class="btn btn--block" href="${mail}">Sipariş talebi gönder ${icon("arrow")}</a>
-      <p class="note">Talebin e-posta ile bize ulaşır; stok ve teslimatı onaylamak için sana dönüyoruz.</p>`;
+      ${unpriced ? `<p class="note">Fiyatı yazmayan ürünlerin fiyatını mesajına dönüşte bildiriyoruz.</p>` : ""}
+      ${wa ? `<a class="btn btn--block btn--wa" href="${wa}" target="_blank" rel="noopener">${waIcon} WhatsApp ile sipariş ver</a>`
+           : `<button class="btn btn--block" type="button" disabled>WhatsApp numarası eklenecek</button>`}
+      <p class="note">Siparişin WhatsApp'ta hazır bir mesaj olarak açılır; gönderdiğinde bize ulaşır. Sitemiz bu bilgileri kaydetmez. Ayrıntılar: <a href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a>.</p>`;
   }
 
   /* ---------------- Sayfa: Ana sayfa ---------------- */
@@ -534,9 +576,12 @@
       });
       if (!ok) return;
       const d = Object.fromEntries(new FormData(form));
-      const body = `Ad Soyad: ${d.ad}\nTelefon: ${d.tel}\nE-posta: ${d.eposta || "-"}\nHizmet: ${d.hizmet}\nBisiklet: ${d.bisiklet || "-"}\n\n${d.mesaj || ""}`;
-      location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Servis randevusu — " + d.hizmet)}&body=${encodeURIComponent(body)}`;
-      $(".form-status", form).textContent = "E-posta uygulaman açıldı. Gönder'e bastığında talebin bize ulaşır.";
+      const text = `Merhaba, My Bike sitesinden servis randevusu istiyorum.\n\nAd: ${d.ad}\nHizmet: ${d.hizmet}\nBisiklet: ${d.bisiklet || "-"}` + (d.mesaj ? `\n\n${d.mesaj}` : "");
+      const wa = waUrl(text);
+      const status = $(".form-status", form);
+      if (!wa) { status.textContent = "WhatsApp numarası henüz eklenmedi."; return; }
+      window.open(wa, "_blank", "noopener");
+      status.textContent = "WhatsApp açıldı. Mesajı gönderdiğinde talebin bize ulaşır.";
     });
   }
 
@@ -548,6 +593,7 @@
   renderHeader();
   renderFooter();
   hydratePlaceholders();
+  fillContact();
 
   // Ürünler Supabase'den gelir (assets/js/store.js); gelmezse data.js'teki liste kullanılır
   Promise.resolve(window.MYBIKE.ready).catch(() => {}).then(() => {

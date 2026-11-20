@@ -730,3 +730,30 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
 /* Fiyatı girilmemiş ürünler */
 .p-price b.ask { font-size: 15px; font-weight: 600; white-space: nowrap; }
 @media (max-width: 720px) { .p-price { min-width: 0; } .p-price b.ask { white-space: normal; font-size: 14px; line-height: 1.25; } }
+
+/* ---------- Hukuki metinler ---------- */
+.legal { max-width: 820px; padding-block: 16px 96px; color: var(--ink-2); font-size: 16.5px; line-height: 1.7; }
+.legal h1 { font-size: clamp(30px, 3.4vw, 42px); color: var(--ink); margin-bottom: 8px; }
+.legal h2 { font-size: 21px; color: var(--ink); margin: 40px 0 12px; }
+.legal p { margin: 0 0 14px; }
+.legal-meta { color: var(--muted); font-size: 14.5px; margin-bottom: 28px !important; }
+.legal-list { list-style: disc; padding-left: 22px; margin: 0 0 14px; display: grid; gap: 8px; }
+.legal-dl { display: grid; grid-template-columns: 170px 1fr; gap: 10px 20px; margin: 0 0 14px; }
+.legal-dl dt { color: var(--muted); }
+.legal-dl dd { margin: 0; font-weight: 500; color: var(--ink); }
+.legal-table-wrap { overflow-x: auto; margin: 0 0 16px; }
+.legal-table { min-width: 560px; font-size: 14.5px; line-height: 1.5; }
+.legal-table thead th { background: var(--surface); color: var(--ink); font-weight: 600; width: auto; }
+.legal-table td { color: var(--ink-2); }
+.legal code { white-space: nowrap; font-size: 13.5px; background: var(--surface); padding: 1px 6px; border-radius: 4px; }
+.fill { background: #f6e7a8; color: var(--accent-deep); padding: 0 4px; border-radius: 3px; }
+.legal-note { font-size: 13.5px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+.legal-note a, .drawer-foot .note a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 720px) { .legal-dl { grid-template-columns: 1fr; gap: 2px; } .legal-dl dd { margin-bottom: 10px; } }
+
+/* WhatsApp düğmesi */
+.btn--wa, .btn.btn--wa:not(.btn--dark):not(.btn--ghost) { --b-bg: #25d366; --b-bd: #25d366; --b-fg: #0b0b0a; background-image: none; }
+.btn--wa:hover { --b-bg: #1fb457; --b-bd: #1fb457; }
+.legal-h3 { font-size: 17px; color: var(--ink); margin: 24px 0 10px; font-weight: 600; }
+.legal-dl > div { display: contents; }
+.legal-dl > div[hidden] { display: none; }
