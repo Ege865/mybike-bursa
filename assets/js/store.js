@@ -13,6 +13,7 @@
     cat: r.cat,
     name: r.name,
     price: r.price == null ? null : Number(r.price),
+    durum: r.durum || "sifir",
     oldPrice: r.old_price == null ? undefined : Number(r.old_price),
     badge: r.badge || undefined,
     img: r.img || undefined,

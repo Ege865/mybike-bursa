@@ -102,7 +102,7 @@
         <tbody>${list.map((p) => `
           <tr>
             <td>${p.img ? `<img class="a-thumb" src="${esc(p.img)}" alt="" loading="lazy">` : `<span class="a-thumb"></span>`}</td>
-            <td><b>${esc(p.name)}</b>${p.badge ? ` <span class="pill-on">${esc(p.badge)}</span>` : ""}</td>
+            <td><b>${esc(p.name)}</b>${p.durum === "ikinci-el" ? ` <span class="pill-off">İkinci el</span>` : ""}${p.badge ? ` <span class="pill-on">${esc(p.badge)}</span>` : ""}</td>
             <td class="hide-s">${esc(catLabel(p.cat))}</td>
             <td>${p.price == null ? `<span class="note">Vitrin (fiyatsız)</span>` : tl(Number(p.price))}</td>
             <td class="hide-s">${p.active ? `<span class="pill-on">Yayında</span>` : `<span class="pill-off">Gizli</span>`}</td>
@@ -149,6 +149,7 @@
           </select><p class="err"></p></div>
           <div class="field"><label for="f-price">Fiyat (TL) — boş bırakılırsa ürün yalnızca vitrinde görünür, sepete eklenemez</label><input id="f-price" type="number" min="0" step="1" inputmode="numeric" value="${p && p.price != null ? Number(p.price) : ""}"></div>
           <div class="field"><label for="f-old">Eski fiyat (indirim için, isteğe bağlı)</label><input id="f-old" type="number" min="0" step="1" inputmode="numeric" value="${p && p.old_price != null ? Number(p.old_price) : ""}"></div>
+          <div class="field"><label for="f-durum">Durum</label><select id="f-durum"><option value="sifir" ${!p || (p.durum || "sifir") === "sifir" ? "selected" : ""}>Sıfır</option><option value="ikinci-el" ${p && p.durum === "ikinci-el" ? "selected" : ""}>İkinci el</option></select></div>
           <div class="field"><label for="f-badge">Etiket</label><select id="f-badge">${BADGES.map((b) => `<option value="${b}" ${p && (p.badge || "") === b ? "selected" : ""}>${b || "Yok"}</option>`).join("")}</select></div>
           <div class="field"><label for="f-sort">Sıra (küçük sayı önce görünür)</label><input id="f-sort" type="number" step="1" value="${p ? p.sort : 100}"></div>
           <label class="a-check full"><input type="checkbox" id="f-active" ${!p || p.active ? "checked" : ""}> Sitede yayında</label>
@@ -232,6 +233,7 @@
         price: num($("#f-price").value),
         old_price: num($("#f-old").value),
         badge: $("#f-badge").value || null,
+        durum: $("#f-durum").value,
         active: $("#f-active").checked,
         sort: Number($("#f-sort").value || 100),
         images: st.images,

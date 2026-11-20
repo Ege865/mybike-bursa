@@ -137,6 +137,8 @@
   const shopUrl = (id) => `magaza.html?kat=${encodeURIComponent(id)}`;
   const productUrl = (id) => `urun.html?id=${encodeURIComponent(id)}`;
   const byId = (id) => M.products.find((p) => p.id === id);
+  const isUsed = (p) => p && p.durum === "ikinci-el";
+  const DURUM = { "sifir": "Sıfır", "ikinci-el": "İkinci el" };
   const sellable = (id) => { const p = byId(id); return !!p && p.price != null; }; // fiyatsız ürün = vitrin
 
   /* ---------------- Ürün kartı ---------------- */
@@ -147,6 +149,7 @@
       ${badge}
       <div class="frame">${ph(p.img, "Ürün fotoğrafı", { alt: p.name })}</div>
       <div class="p-body">
+        ${isUsed(p) ? `<span class="cond-tag">İkinci el</span>` : ""}
         <span class="p-cat">${esc(catName(p.cat))}</span>
         <h3 class="p-name"><a href="${productUrl(p.id)}">${esc(p.name)}</a></h3>
         ${p.price == null ? "" : `<div class="p-foot">
@@ -358,7 +361,7 @@
         <span class="line-total">${lineTl(p, q)}</span>
       </div>`;
     }).join("");
-    const lines = items.map(([id, q]) => `${q} x ${byId(id).name} — ${lineTl(byId(id), q)}`).join("\n");
+    const lines = items.map(([id, q]) => `${q} x ${byId(id).name}${isUsed(byId(id)) ? " (İkinci el)" : ""} — ${lineTl(byId(id), q)}`).join("\n");
     const text = "Merhaba, My Bike sitesinden sipariş vermek istiyorum:\n\n" + lines +
       "\n\nToplam: " + tl(cartTotal()) +
       "\nTeslimat: kargo / atölyeden alım";
@@ -427,6 +430,7 @@
     const sort = qs.get("sirala") || "onerilen";
     const min = Number(qs.get("min")) || 0;
     const max = Number(qs.get("max")) || 0;
+    const durum = DURUM[qs.get("durum")] ? qs.get("durum") : "";
 
     const trail = kat ? pathTo(kat) : [];
     const title = q ? `“${q}” için sonuçlar` : kat ? catName(kat) : "Tüm ürünler";
@@ -451,6 +455,9 @@
     $("#filters").innerHTML = `
       <h2>Kategoriler</h2>
       <ul class="ftree"><li class="lvl-0"><a href="magaza.html"${!kat ? ' aria-current="true"' : ""}><span>Tüm ürünler</span><em>${M.products.length}</em></a></li>${treeHtml(M.categories, 0)}</ul>
+      <hr>
+      <h2>Durum</h2>
+      <ul class="ftree">${[["", "Tümü"], ["sifir", "Sıfır"], ["ikinci-el", "İkinci el"]].map(([v, l]) => `<li class="lvl-1"><a href="${keep({ durum: v })}"${durum === v ? ' aria-current="true"' : ""}><span>${l}</span></a></li>`).join("")}</ul>
       <hr>
       <h2>Fiyat (TL)</h2>
       <form class="price-filter" data-price>
@@ -487,6 +494,7 @@
     }
     if (min) list = list.filter((p) => p.price != null && p.price >= min);
     if (max) list = list.filter((p) => p.price != null && p.price <= max);
+    if (durum) list = list.filter((p) => (p.durum || "sifir") === durum);
     if (sort === "artan") list.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
     if (sort === "azalan") list.sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
     if (sort === "yeni") list.sort((a, b) => (b.badge === "Yeni") - (a.badge === "Yeni"));
@@ -526,7 +534,7 @@
       </div>
       <div class="buy">
         <div>
-          <p class="meta"><a class="link" href="${shopUrl(p.cat)}">${esc(catName(p.cat))}</a></p>
+          <p class="meta"><a class="link" href="${shopUrl(p.cat)}">${esc(catName(p.cat))}</a>${isUsed(p) ? ` <span class="cond-tag cond-tag--inline">İkinci el</span>` : ""}</p>
           <h1 style="margin-top:10px">${esc(p.name)}</h1>
         </div>
         ${p.price == null ? "" : `<div class="price">${p.oldPrice ? `<s>${tl(p.oldPrice)}</s>` : ""}<b>${tl(p.price)}</b></div>
