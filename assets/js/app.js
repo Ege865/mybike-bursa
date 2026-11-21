@@ -17,11 +17,12 @@
     emailLabel: "tolgaakdeniz16@gmail.com",
     phoneLabel: "+90 531 886 81 20",     // WhatsApp ile aynı numara
     whatsapp: "905318868120",            // ülke koduyla, sadece rakam
-    area: "Bursa",                       // TODO: ilçe / sokak
+    area: "Odunluk Mah., Orhangazi Cad., No: 13, Nilüfer, Bursa",
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("My Bike, Odunluk Mah., Orhangazi Cad., No: 13, Nilüfer, Bursa"),
     hours: "Pzt–Cmt 10:00–19:00",        // TODO: gerçek çalışma saatleri
     // KVKK metinleri için (doldurulursa aydınlatma metinlerinde otomatik görünür):
     legalName: "",                       // ör. "Ad Soyad (şahıs işletmesi)" ya da şirket unvanı
-    address: ""                          // açık adres; boşsa "area" kullanılır
+    address: "Odunluk Mah., Orhangazi Cad., No: 13, Nilüfer, Bursa"
   };
   const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || "");
   const prettyPhone = (n) => { const d = String(n || "").replace(/\D/g, ""); return d ? "+" + d.replace(/^(\d{2})(\d{3})(\d{3})(\d{2})(\d{2})$/, "$1 $2 $3 $4 $5") : ""; };
@@ -654,7 +655,7 @@
     const sel = $("#hizmet");
     if (sel) sel.innerHTML = `<option value="">Seçin</option>` + M.services.map((s) => `<option>${esc(s.title)}</option>`).join("") + `<option>Diğer</option>`;
     $$("[data-hours]").forEach((el) => (el.textContent = CONTACT.hours));
-    $$("[data-area]").forEach((el) => (el.textContent = CONTACT.area));
+    $$("[data-area]").forEach((el) => { el.innerHTML = `${esc(CONTACT.area)}<br><a class="link" href="${CONTACT.mapsUrl}" target="_blank" rel="noopener">Yol tarifi al</a>`; });
     $$("[data-email]").forEach((el) => { el.textContent = CONTACT.emailLabel; el.href = "mailto:" + CONTACT.email; });
     $$("[data-phone]").forEach((el) => (el.textContent = CONTACT.phoneLabel));
 
