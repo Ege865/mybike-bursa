@@ -139,20 +139,30 @@
   const byId = (id) => M.products.find((p) => p.id === id);
   const isUsed = (p) => p && p.durum === "ikinci-el";
   const DURUM = { "sifir": "Sıfır", "ikinci-el": "İkinci el" };
-  const sellable = (id) => { const p = byId(id); return !!p && p.price != null; }; // fiyatsız ürün = vitrin
+  const STOK = { "stokta": "Stokta", "siparis": "Sipariş üzerine", "satildi": "Satıldı" };
+  const stokOf = (p) => (p && STOK[p.stok]) ? p.stok : "stokta";
+  const isSold = (p) => stokOf(p) === "satildi";
+  const stockTag = (p, always) => {
+    const k = stokOf(p);
+    if (k === "stokta" && !always) return "";
+    return `<span class="stock stock--${k}">${STOK[k]}</span>`;
+  };
+  const sellable = (id) => { const p = byId(id); return !!p && p.price != null && !isSold(p); }; // fiyatsız ya da satılmış ürün = vitrin
 
   /* ---------------- Ürün kartı ---------------- */
   function card(p) {
     const badge = p.badge ? `<span class="badge${p.badge === "İndirim" ? " badge--sale" : ""}">${esc(p.badge)}</span>` : "";
     const old = p.oldPrice ? `<s>${tl(p.oldPrice)}</s>` : "";
-    return `<article class="p-card">
+    const sold = isSold(p);
+    return `<article class="p-card${sold ? " is-sold" : ""}">
       ${badge}
       <div class="frame">${ph(p.img, "Ürün fotoğrafı", { alt: p.name })}</div>
       <div class="p-body">
         ${isUsed(p) ? `<span class="cond-tag">İkinci el</span>` : ""}
         <span class="p-cat">${esc(catName(p.cat))}</span>
         <h3 class="p-name"><a href="${productUrl(p.id)}">${esc(p.name)}</a></h3>
-        ${p.price == null ? "" : `<div class="p-foot">
+        ${stockTag(p)}
+        ${p.price == null || sold ? "" : `<div class="p-foot">
           <div class="p-price">${old}<b>${tl(p.price)}</b></div>
           <button class="add-btn" type="button" data-add="${p.id}" aria-label="Sepete ekle: ${esc(p.name)}">${icon("cart")}</button>
         </div>`}
@@ -220,6 +230,8 @@
       <nav class="mainnav" aria-label="Kategoriler"><div class="wrap"><ul style="display:contents">
         ${navItems}
         <li class="nav-item nav-item--push"><a class="nav-link" href="atolye.html" ${page === "atolye" ? 'aria-current="page"' : ""}>Atölye</a></li>
+        <li class="nav-item"><a class="nav-link" href="rehber.html" ${location.pathname.endsWith("rehber.html") ? 'aria-current="page"' : ""}>Rehber</a></li>
+        <li class="nav-item"><a class="nav-link" href="sss.html" ${location.pathname.endsWith("sss.html") ? 'aria-current="page"' : ""}>SSS</a></li>
         <li class="nav-item"><a class="nav-link" href="atolye.html#randevu">İletişim</a></li>
       </ul></div></nav>
     </header>
@@ -227,6 +239,8 @@
       ${mItems}
       <a href="atolye.html">Atölye ${icon("arrow")}</a>
       <a href="atolye.html#randevu">Servis randevusu ${icon("arrow")}</a>
+      <a href="rehber.html">Beden ve uyumluluk rehberi ${icon("arrow")}</a>
+      <a href="sss.html">Sık sorulan sorular ${icon("arrow")}</a>
     </nav>`;
 
     const btn = $(".menu-btn");
@@ -278,7 +292,7 @@
       </div>
       <div class="foot-bottom"><div class="wrap">
         <span>© ${new Date().getFullYear()} My Bike Bursa. Tüm hakları saklıdır.</span>
-        <span><a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a> &nbsp;·&nbsp; <a class="link" href="gizlilik-cerez.html">Gizlilik ve Çerez Politikası</a> &nbsp;·&nbsp; <a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
+        <span><a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a> &nbsp;·&nbsp; <a class="link" href="gizlilik-cerez.html">Gizlilik ve Çerez Politikası</a> &nbsp;·&nbsp; <a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="rehber.html">Beden ve uyumluluk</a> &nbsp;·&nbsp; <a class="link" href="sss.html">SSS</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
       </div></div>
     </footer>`;
   }
@@ -361,7 +375,7 @@
         <span class="line-total">${lineTl(p, q)}</span>
       </div>`;
     }).join("");
-    const lines = items.map(([id, q]) => `${q} x ${byId(id).name}${isUsed(byId(id)) ? " (İkinci el)" : ""} — ${lineTl(byId(id), q)}`).join("\n");
+    const lines = items.map(([id, q]) => `${q} x ${byId(id).name}${isUsed(byId(id)) ? " (İkinci el)" : ""}${stokOf(byId(id)) === "siparis" ? " (Sipariş üzerine)" : ""} — ${lineTl(byId(id), q)}`).join("\n");
     const text = "Merhaba, My Bike sitesinden sipariş vermek istiyorum:\n\n" + lines +
       "\n\nToplam: " + tl(cartTotal()) +
       "\nTeslimat: kargo / atölyeden alım";
@@ -530,6 +544,7 @@
     if (sort === "artan") list.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
     if (sort === "azalan") list.sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
     if (sort === "yeni") list.sort((a, b) => (b.badge === "Yeni") - (a.badge === "Yeni"));
+    list.sort((a, b) => isSold(a) - isSold(b)); // satılanlar en sonda
 
     $("[data-count]").textContent = `${list.length} ürün`;
     const sel = $("#sirala"); sel.value = sort;
@@ -553,6 +568,7 @@
     {
       const used = isUsed(p);
       const pImgs = p.images || (p.img ? [p.img] : []);
+      const avail = { stokta: "InStock", siparis: "BackOrder", satildi: "SoldOut" }[stokOf(p)];
       const ld = {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -564,7 +580,7 @@
       };
       if (pImgs.length) ld.image = pImgs.map((u) => new URL(u, SITE).href);
       if (p.price != null) ld.offers = {
-        "@type": "Offer", price: p.price, priceCurrency: "TRY", availability: "https://schema.org/InStock",
+        "@type": "Offer", price: p.price, priceCurrency: "TRY", availability: `https://schema.org/${avail}`,
         itemCondition: ld.itemCondition, seller: { "@id": `${SITE}#isletme`, "@type": "BicycleStore", name: "My Bike Bursa" }
       };
       setSeo({
@@ -594,14 +610,16 @@
           <p class="meta"><a class="link" href="${shopUrl(p.cat)}">${esc(catName(p.cat))}</a>${isUsed(p) ? ` <span class="cond-tag cond-tag--inline">İkinci el</span>` : ""}</p>
           <h1 style="margin-top:10px">${esc(p.name)}</h1>
         </div>
-        ${p.price == null ? "" : `<div class="price">${p.oldPrice ? `<s>${tl(p.oldPrice)}</s>` : ""}<b>${tl(p.price)}</b></div>
+        <p class="stock-line">${stockTag(p, true)}${stokOf(p) === "siparis" ? `<span>Tedarik süresini WhatsApp'tan sorabilirsin.</span>` : ""}</p>
+        ${isSold(p) ? `<div class="sold-note"><p>Bu ürün satıldı. Benzerini arıyorsan yaz, bulmaya çalışalım.</p><a class="btn btn--wa" href="${waUrl(`Merhaba, sitenizde satıldı görünen "${p.name}" ürününün benzerini arıyorum.`)}" target="_blank" rel="noopener">WhatsApp'tan sor</a></div>` :
+        p.price == null ? "" : `<div class="price">${p.oldPrice ? `<s>${tl(p.oldPrice)}</s>` : ""}<b>${tl(p.price)}</b></div>
         <div class="qty-row">
           <div class="qty"><button type="button" data-q="-1" aria-label="Adedi azalt">${icon("minus")}</button><output aria-live="polite" data-qv>1</output><button type="button" data-q="1" aria-label="Adedi artır">${icon("plus")}</button></div>
           <button class="btn" type="button" data-add="${p.id}" data-qty="1">${icon("cart")} Sepete ekle</button>
         </div>`}
         <ul class="perks">
           <li>${icon("wrench")}<div><b>${isBike ? "Kurulum ve set-up" : "Atölyede montaj"}</b><span>${isBike ? "Teslimden önce süspansiyonu kilona ve sürüşüne göre ayarlayalım." :"Parçanı atölyede taktırabilir, ayarını yaptırabilirsin."}</span></div></li>
-          <li>${icon("clipboard")}<div><b>Uyumluluk kontrolü</b><span>Siparişten önce bisikletine uyup uymadığını birlikte kontrol ediyoruz.</span></div></li>
+          <li>${icon("clipboard")}<div><b>Uyumluluk kontrolü</b><span>Siparişten önce bisikletine uyup uymadığını birlikte kontrol ediyoruz. <a class="link" href="rehber.html">Uyumluluk rehberi</a></span></div></li>
           <li>${icon("badge")}<div><b>Orijinal ürün</b><span>Faturalı ve garantili.</span></div></li>
         </ul>
         <div style="display:grid;gap:12px">${specs}</div>
@@ -677,6 +695,10 @@
   renderFooter();
   hydratePlaceholders();
   fillContact();
+  // data-wa="mesaj" taşıyan bağlantılar WhatsApp'ı hazır mesajla açar
+  $$("[data-wa]").forEach((a) => { a.href = waUrl(a.dataset.wa); a.target = "_blank"; a.rel = "noopener"; });
+  // SSS açılıp kapanınca yumuşak kaydırmanın sayfa yüksekliğini güncelle
+  $$("details").forEach((d) => d.addEventListener("toggle", () => { if (window.ScrollTrigger) ScrollTrigger.refresh(); }));
 
   // Ürünler Supabase'den gelir (assets/js/store.js); gelmezse data.js'teki liste kullanılır
   Promise.resolve(window.MYBIKE.ready).catch(() => {}).then(() => {
