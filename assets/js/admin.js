@@ -70,12 +70,123 @@
       await db.auth.signOut();
       return renderLogin("Bu hesabın yönetici yetkisi yok. Supabase'de admins tablosuna eklenmeli.");
     }
-    who.innerHTML = `<span>${esc(session.user.email)}</span><button class="btn btn--ghost a-small" type="button" id="out">Çıkış</button>`;
-    document.getElementById("out").onclick = async () => { await db.auth.signOut(); renderLogin("Çıkış yapıldı.", "ok"); };
+    who.innerHTML = `<nav class="a-tabs" aria-label="Panel bölümleri">
+        <a href="#urunler" data-tab="urunler">Ürünler</a><a href="#istatistik" data-tab="istatistik">İstatistik</a>
+      </nav><span class="hide-s">${esc(session.user.email)}</span><button class="btn btn--ghost a-small" type="button" id="out">Çıkış</button>`;
+    document.getElementById("out").onclick = async () => { await db.auth.signOut(); location.hash = ""; renderLogin("Çıkış yapıldı.", "ok"); };
+    window.onhashchange = route;
+    await route();
+  }
+
+  async function route() {
+    const tab = location.hash === "#istatistik" ? "istatistik" : "urunler";
+    who.querySelectorAll("[data-tab]").forEach((a) => a.toggleAttribute("aria-current", a.dataset.tab === tab));
+    if (tab === "istatistik") return renderStats();
     await load();
   }
 
+  /* ---------- İstatistik ---------- */
+  const pad = (n) => String(n).padStart(2, "0");
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const MONTHS = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+  const PAGE_NAMES = { index: "Ana sayfa", magaza: "Mağaza", urun: "Ürün sayfaları", atolye: "Atölye", sss: "SSS", rehber: "Rehber", "kvkk-aydinlatma": "KVKK metni", "gizlilik-cerez": "Gizlilik ve çerez" };
+  function periods() {
+    const t = new Date(); t.setHours(0, 0, 0, 0);
+    return {
+      bugun: { label: "Bugün", from: t, to: t },
+      dun: { label: "Dün", from: addDays(t, -1), to: addDays(t, -1) },
+      "7gun": { label: "Son 7 gün", from: addDays(t, -6), to: t },
+      "30gun": { label: "Son 30 gün", from: addDays(t, -29), to: t },
+      buay: { label: "Bu ay", from: new Date(t.getFullYear(), t.getMonth(), 1), to: t },
+      gecenay: { label: "Geçen ay", from: new Date(t.getFullYear(), t.getMonth() - 1, 1), to: new Date(t.getFullYear(), t.getMonth(), 0) },
+      buyil: { label: "Bu yıl", from: new Date(t.getFullYear(), 0, 1), to: t },
+      "12ay": { label: "Son 12 ay", from: new Date(t.getFullYear(), t.getMonth() - 11, 1), to: t }
+    };
+  }
+  let statPeriod = "30gun";
+
+  async function renderStats() {
+    const P = periods();
+    const per = P[statPeriod];
+    app.innerHTML = `
+      <div class="a-bar">
+        <h1>İstatistik</h1>
+        <div class="tools a-periods" role="group" aria-label="Dönem">
+          ${Object.entries(P).map(([k, v]) => `<button type="button" class="chip" data-per="${k}" aria-pressed="${k === statPeriod}">${v.label}</button>`).join("")}
+        </div>
+      </div>
+      <div id="stats"><p class="note">Yükleniyor…</p></div>`;
+    app.querySelectorAll("[data-per]").forEach((b) => (b.onclick = () => { statPeriod = b.dataset.per; renderStats(); }));
+
+    db.rpc("analytics_cleanup").then(() => {}, () => {});
+    if (!products.length) { const r = await db.from("products").select("id,name"); if (r.data) products = r.data; }
+    const { data, error } = await db.rpc("analytics_report", { p_from: iso(per.from), p_to: iso(per.to) });
+    const box = document.getElementById("stats");
+    if (!box) return;
+    if (error) {
+      box.innerHTML = `<div class="a-card"><p class="a-msg err">İstatistik alınamadı: ${esc(error.message)}</p>
+        <p class="note">Supabase'de <code>supabase/migration-istatistik.sql</code> dosyası çalıştırılmamış olabilir.</p></div>`;
+      return;
+    }
+    const T = data.totals;
+    const pctN = (n) => (T.visitors ? Math.round((n / T.visitors) * 1000) / 10 : 0);
+    const pct = (n) => pctN(n).toLocaleString("tr-TR");
+    const num = (n) => Number(n || 0).toLocaleString("tr-TR");
+    const pname = (id) => { const p = products.find((x) => x.id === id) || (M.products || []).find((x) => x.id === id); return p ? p.name : id; };
+
+    // Grafik: dönemdeki her gün (ya da ay) için ziyaretçi
+    const series = new Map((data.series || []).map((r) => [r.d, r]));
+    const cols = [];
+    if (data.bucket === "month") {
+      for (let d = new Date(per.from.getFullYear(), per.from.getMonth(), 1); d <= per.to; d = new Date(d.getFullYear(), d.getMonth() + 1, 1))
+        cols.push({ key: iso(d), label: MONTHS[d.getMonth()] + (d.getMonth() === 0 ? " " + String(d.getFullYear()).slice(2) : "") });
+    } else {
+      for (let d = new Date(per.from); d <= per.to; d = addDays(d, 1))
+        cols.push({ key: iso(d), label: `${d.getDate()} ${MONTHS[d.getMonth()]}` });
+    }
+    const vals = cols.map((c) => ({ ...c, v: Number((series.get(c.key) || {}).visitors || 0), wa: Number((series.get(c.key) || {}).wa || 0), pv: Number((series.get(c.key) || {}).pageviews || 0) }));
+    const max = Math.max(1, ...vals.map((x) => x.v));
+    const every = Math.ceil(vals.length / 10);
+    const chart = vals.length > 1 ? `
+      <div class="a-card a-chart-card">
+        <h2>Ziyaretçi (${data.bucket === "month" ? "aylık" : "günlük"})</h2>
+        <div class="a-chart" style="--n:${vals.length}">
+          ${vals.map((x, i) => `<div class="a-col" title="${x.label}: ${x.v} ziyaretçi, ${x.pv} sayfa, ${x.wa} WhatsApp">
+            <span class="a-bar-v" style="height:${(x.v / max) * 100}%"><span class="a-bar-wa" style="height:${x.v ? (x.wa / x.v) * 100 : 0}%"></span></span>
+            <small>${i % every === 0 ? x.label : ""}</small></div>`).join("")}
+        </div>
+        <p class="note a-legend"><span class="sw sw-v"></span> Ziyaretçi <span class="sw sw-wa"></span> WhatsApp'a yönlenen</p>
+      </div>` : "";
+
+    const list = (title, rows, fmt, empty) => `<div class="a-card"><h2>${title}</h2>${rows.length ? `<ol class="a-list">${rows.map(fmt).join("")}</ol>` : `<p class="note">${empty}</p>`}</div>`;
+
+    box.innerHTML = `
+      <p class="note a-scope">${esc(per.label)}: ${per.from.toLocaleDateString("tr-TR")}${+per.from !== +per.to ? " – " + per.to.toLocaleDateString("tr-TR") : ""}. Yalnızca çerezlere izin veren ziyaretçiler sayılır.</p>
+      <div class="a-kpis">
+        <div class="a-kpi"><span>Ziyaretçi</span><b>${num(T.visitors)}</b><small>${num(T.returning)} tanesi birden fazla kez geldi</small></div>
+        <div class="a-kpi"><span>Ziyaret (oturum)</span><b>${num(T.sessions)}</b><small>${num(T.pageviews)} sayfa görüntüleme</small></div>
+        <div class="a-kpi"><span>Sepet oluşturan</span><b>%${pct(T.cart_visitors)}</b><small>${num(T.cart_visitors)} ziyaretçi, ${num(T.cart_adds)} ürün ekleme</small></div>
+        <div class="a-kpi a-kpi--wa"><span>WhatsApp'a yönlenen</span><b>%${pct(T.wa_visitors)}</b><small>${num(T.wa_visitors)} ziyaretçi</small></div>
+      </div>
+      <div class="a-card">
+        <h2>WhatsApp talepleri</h2>
+        <div class="a-funnel">
+          ${[["Sipariş (sepetten)", T.wa_order], ["Servis randevusu", T.wa_appointment], ["Soru / bilgi", T.wa_contact]].map(([l, n]) => `
+            <div><span>${l}</span><b>${num(n)} kişi</b><i style="--w:${pctN(n)}%"></i><small>Ziyaretçilerin %${pct(n)}'i</small></div>`).join("")}
+        </div>
+        <p class="note">WhatsApp düğmesine basıp uygulamayı açanlar sayılır; mesajı gerçekten gönderip göndermedikleri siteden görülemez.</p>
+      </div>
+      ${chart}
+      <div class="a-two">
+        ${list("En çok bakılan ürünler", data.products || [], (r) => `<li><span>${esc(pname(r.item))}</span><b>${num(r.views)}</b></li>`, "Henüz ürün görüntülemesi yok.")}
+        ${list("En çok sepete eklenenler", data.carted || [], (r) => `<li><span>${esc(pname(r.item))}</span><b>${num(r.adds)}</b></li>`, "Henüz sepete ekleme yok.")}
+        ${list("Sayfalar", data.pages || [], (r) => `<li><span>${esc(PAGE_NAMES[r.page] || r.page)}</span><b>${num(r.views)}</b></li>`, "Henüz sayfa görüntülemesi yok.")}
+      </div>`;
+  }
+
   async function load() {
+    if (location.hash === "#istatistik") return;
     app.innerHTML = `<p class="note">Ürünler yükleniyor…</p>`;
     const { data, error } = await db.from("products").select("*").order("sort").order("created_at", { ascending: false });
     if (error) { app.innerHTML = `<p class="a-msg err">Ürünler alınamadı: ${esc(error.message)}</p>`; return; }

@@ -293,7 +293,7 @@
       </div>
       <div class="foot-bottom"><div class="wrap">
         <span>© ${new Date().getFullYear()} My Bike Bursa. Tüm hakları saklıdır.</span>
-        <span><a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a> &nbsp;·&nbsp; <a class="link" href="gizlilik-cerez.html">Gizlilik ve Çerez Politikası</a> &nbsp;·&nbsp; <a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="rehber.html">Beden ve uyumluluk</a> &nbsp;·&nbsp; <a class="link" href="sss.html">SSS</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
+        <span><a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a> &nbsp;·&nbsp; <a class="link" href="gizlilik-cerez.html">Gizlilik ve Çerez Politikası</a> &nbsp;·&nbsp; <a class="link" href="#" data-consent-open>Çerez tercihleri</a> &nbsp;·&nbsp; <a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="rehber.html">Beden ve uyumluluk</a> &nbsp;·&nbsp; <a class="link" href="sss.html">SSS</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
       </div></div>
     </footer>`;
   }
@@ -335,9 +335,13 @@
   function openCart() { lastFocus = document.activeElement; document.body.classList.add("cart-open"); setTimeout(() => $(".drawer .close-btn").focus(), 60); }
   function closeCart() { document.body.classList.remove("cart-open"); if (lastFocus) lastFocus.focus(); }
 
+  // İstatistik (assets/js/analytics.js): yalnızca ziyaretçi çerezlere izin verdiyse kaydedilir
+  const track = (type, item) => { try { if (window.MYBIKE.track) window.MYBIKE.track(type, item); } catch (e) {} };
+
   function addToCart(id, qty, btn) {
     if (!sellable(id)) return; // fiyatı olmayan ürünler yalnızca vitrin
     cart[id] = (cart[id] || 0) + qty; saveCart(); updateCart(true);
+    track("cart_add", id);
     toast(`${byId(id).name} sepete eklendi`);
     if (btn && btn.classList.contains("add-btn")) {
       btn.classList.add("done"); btn.innerHTML = icon("check");
@@ -682,6 +686,7 @@
       const wa = waUrl(text);
       const status = $(".form-status", form);
       if (!wa) { status.textContent = "WhatsApp numarası henüz eklenmedi."; return; }
+      track("wa_appointment");
       window.open(wa, "_blank", "noopener");
       status.textContent = "WhatsApp açıldı. Mesajı gönderdiğinde talebin bize ulaşır.";
     });

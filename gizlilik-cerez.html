@@ -17,8 +17,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/img/favicon-64.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-  <link rel="stylesheet" href="assets/css/fonts.css?v=202611212130">
-  <link rel="stylesheet" href="assets/css/style.css?v=202611212130">
+  <link rel="stylesheet" href="assets/css/fonts.css?v=202611221230">
+  <link rel="stylesheet" href="assets/css/style.css?v=202611221230">
 </head>
 <body data-page="legal">
   <a class="skip-link" href="#icerik">İçeriğe geç</a>
@@ -32,34 +32,38 @@
 
           <article class="legal">
             <h1>Gizlilik ve Çerez Politikası</h1>
-            <p class="legal-meta">Son güncelleme: 20 Kasım 2026</p>
+            <p class="legal-meta">Son güncelleme: 22 Kasım 2026</p>
 
-            <!-- İletişim bilgileri assets/js/app.js içindeki CONTACT ayarından otomatik doldurulur. Siteye analiz (ör. Google Analytics),
-                 reklam pikseli ya da canlı destek eklenirse bu metin ve çerez onayı yeniden düzenlenmelidir. -->
+            <!-- İletişim bilgileri assets/js/app.js içindeki CONTACT ayarından otomatik doldurulur. İstatistik: assets/js/analytics.js.
+                 Üçüncü taraf analiz (ör. Google Analytics), reklam pikseli ya da canlı destek eklenirse bu metin ve çerez bandı yeniden düzenlenmelidir. -->
 
             <p>Bu politika, <b>My Bike Bursa</b> internet sitesini (“Site”) kullanırken hangi bilgilerin işlendiğini, tarayıcınızda hangi verilerin saklandığını ve bunları nasıl yönetebileceğinizi açıklar. Kişisel verilerinizin işlenmesine ilişkin ayrıntılı bilgi için <a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a>’ni inceleyebilirsiniz.</p>
 
             <h2>1. Kısaca</h2>
             <ul class="legal-list">
-              <li>Site, reklam ya da takip amaçlı çerez <b>kullanmaz</b>; ziyaretçi analizi (Google Analytics vb.) yapılmaz.</li>
+              <li>Site, reklam ya da başka sitelerde sizi izleyen çerez <b>kullanmaz</b>; Google Analytics gibi üçüncü taraf analiz araçları kullanılmaz.</li>
+              <li>İzin verirseniz, siteyi geliştirmek için kendi ziyaret istatistiğimizi tutarız: tarayıcınıza rastgele bir ziyaretçi numarası kaydedilir; hangi sayfalara bakıldığını, kaç kişinin sepet oluşturduğunu ve WhatsApp'a yöneldiğini sayarız. Adınız, numaranız ve IP adresiniz bu kayda girmez.</li>
               <li>Sepetinizdeki ürünler yalnızca sizin tarayıcınızda saklanır, bize gönderilmez.</li>
               <li>Randevu formu ve sepet bilgileri hiçbir sunucuya ya da veritabanına kaydedilmez; WhatsApp'ta hazır bir mesaj olarak açılır ve ancak siz gönderdiğinizde bize ulaşır.</li>
-              <li>Sitenin kullandığı veritabanında (Supabase) yalnızca ürün bilgileri bulunur; müşteri bilgisi tutulmaz.</li>
-              <li>Bu nedenle sitede çerez onay bandı gösterilmez; kullanılan tek depolama, sitenin çalışması için zorunlu olandır.</li>
+              <li>Sitenin kullandığı veritabanında (Supabase) ürün bilgileri ve, izin verdiyseniz, adsız ziyaret istatistiği bulunur; müşteri bilgisi tutulmaz.</li>
+              <li>İlk ziyaretinizde çıkan bantta “Kabul et” ya da “Reddet”i seçebilirsiniz. Reddederseniz istatistik tutulmaz ve site aynı şekilde çalışır.</li>
             </ul>
 
-            <h2>2. Çerez ve benzeri teknolojiler</h2>
-            <p>Çerezler, ziyaret ettiğiniz sitelerin tarayıcınıza kaydettiği küçük dosyalardır. Sitemiz kendi çerezini oluşturmaz; benzer bir teknoloji olan tarayıcı yerel depolamasını (localStorage) yalnızca aşağıdaki zorunlu amaçlarla kullanır:</p>
+            <h2 id="cerezler">2. Çerez ve benzeri teknolojiler</h2>
+            <p>Çerezler, ziyaret ettiğiniz sitelerin tarayıcınıza kaydettiği küçük dosyalardır. Sitemiz bunun yerine benzer bir teknoloji olan tarayıcı yerel depolamasını (localStorage) aşağıdaki amaçlarla kullanır:</p>
             <div class="legal-table-wrap">
             <table class="specs legal-table">
               <thead><tr><th scope="col">Ad</th><th scope="col">Tür</th><th scope="col">Amaç</th><th scope="col">Süre</th></tr></thead>
               <tbody>
                 <tr><td><code>mybike-cart</code></td><td>Zorunlu, yerel depolama</td><td>Sepete eklediğiniz ürünleri ve adetlerini sayfalar arasında hatırlamak</td><td>Siz sepeti boşaltana ya da tarayıcı verilerini silene kadar</td></tr>
+                <tr><td><code>mybike-consent</code></td><td>Zorunlu, yerel depolama</td><td>Çerez bandındaki tercihinizi (kabul ya da ret) hatırlamak; bandı her sayfada yeniden göstermemek</td><td>Tercihinizi değiştirene ya da tarayıcı verilerini silene kadar</td></tr>
+                <tr><td><code>mybike-vid</code></td><td>İstatistik, yerel depolama (<b>izninize bağlı</b>)</td><td>Rastgele ziyaretçi numarası: aynı kişinin sitenin farklı sayfalarına bakmasını tek ziyaretçi olarak saymak</td><td>Onayınızı geri alana ya da tarayıcı verilerini silene kadar; sunucudaki kayıtlar en fazla 13 ay</td></tr>
+                <tr><td><code>mybike-sid</code></td><td>İstatistik, yerel depolama (<b>izninize bağlı</b>)</td><td>Rastgele oturum numarası: bir ziyareti diğerinden ayırmak</td><td>30 dakika hareketsizlikte yenilenir; onayınızı geri aldığınızda silinir</td></tr>
                 <tr><td><code>sb-…-auth-token</code></td><td>Zorunlu, yerel depolama</td><td>Yalnızca yönetim paneline giriş yapan site yöneticileri için oturumu açık tutmak; ziyaretçiler için oluşturulmaz</td><td>Çıkış yapılana kadar</td></tr>
               </tbody>
             </table>
             </div>
-            <p>Zorunlu depolama, sitenin istediğiniz işlevi (sepet) yerine getirmesi için gereklidir ve açık rızanıza dayanmaz. Reklam, pazarlama, analiz ya da kişiselleştirme amaçlı çerez kullanmaya başlarsak, bunları ancak açık onayınızı aldıktan sonra etkinleştiririz.</p>
+            <p>Zorunlu depolama, sitenin istediğiniz işlevi (sepet ve tercihinizin hatırlanması) yerine getirmesi için gereklidir ve açık rızanıza dayanmaz. İstatistik amaçlı depolama ise yalnızca çerez bandında “Kabul et”i seçtiğinizde oluşturulur. İstatistik kayıtları yalnızca toplu sayılar olarak (ziyaretçi sayısı, sepet ve WhatsApp oranları, en çok bakılan ürünler) site yöneticisine gösterilir; reklam ya da pazarlama için kullanılmaz ve kimseyle paylaşılmaz.</p>
 
             <h2>3. Üçüncü taraf hizmetler</h2>
             <p>Site, düzgün görüntülenebilmesi ve çalışabilmesi için aşağıdaki hizmetlerden içerik yükler. Bu sırada IP adresiniz ve tarayıcı bilginiz teknik olarak ilgili sağlayıcının sunucularına iletilir. Sağlayıcıların sunucuları yurt dışında bulunabilir.</p>
@@ -68,7 +72,7 @@
               <thead><tr><th scope="col">Hizmet</th><th scope="col">Ne için</th><th scope="col">Sağlayıcı</th></tr></thead>
               <tbody>
                 <tr><td>GitHub Pages</td><td>Sitenin barındırılması</td><td>GitHub, Inc.</td></tr>
-                <tr><td>Supabase</td><td>Ürün listesi ve fotoğrafların sunulması, yönetim paneli girişi (müşteri bilgisi tutulmaz)</td><td>Supabase, Inc.</td></tr>
+                <tr><td>Supabase</td><td>Ürün listesi ve fotoğrafların sunulması, yönetim paneli girişi; izin verdiyseniz adsız ziyaret istatistiğinin saklanması (müşteri bilgisi tutulmaz)</td><td>Supabase, Inc.</td></tr>
                 <tr><td>WhatsApp</td><td>Yalnızca siz “WhatsApp ile sipariş ver” ya da “WhatsApp ile randevu iste” düğmesine bastığınızda açılır</td><td>WhatsApp / Meta</td></tr>
               </tbody>
             </table>
@@ -79,6 +83,7 @@
             <p>Sepetteki “WhatsApp ile sipariş ver” ve servis formundaki “WhatsApp ile randevu iste” düğmeleri, seçtiğiniz ürünleri ya da yazdığınız bilgileri hazır bir mesaja dönüştürüp WhatsApp'ı açar. Bu işlem tamamen sizin cihazınızda gerçekleşir; bilgiler sitemizin sunucusuna ya da veritabanına gönderilmez. Mesaj, siz WhatsApp'ta gönder düğmesine basana kadar bize iletilmez. WhatsApp, Meta'ya ait yurt dışı merkezli bir hizmettir ve kendi gizlilik koşullarına tabidir. Gönderdiğiniz mesajlar, talebinizi yanıtlamak için <a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a>’nde belirtilen süre boyunca saklanır. WhatsApp kullanmak istemezseniz bize telefonla ulaşabilir ya da atölyemize gelebilirsiniz.</p>
 
             <h2>5. Tercihlerinizi nasıl yönetirsiniz?</h2>
+            <p>İstatistik iznini istediğiniz zaman değiştirebilirsiniz: <a class="link" href="#" data-consent-open>Çerez tercihlerini aç</a>. Bu bağlantı her sayfanın altında da bulunur. İzni geri aldığınızda tarayıcınızdaki ziyaretçi numarası silinir ve yeni kayıt yapılmaz.</p>
             <p>Tarayıcınızın ayarlarından site verilerini (çerezler ve yerel depolama) görüntüleyebilir, silebilir ya da engelleyebilirsiniz. Yerel depolamayı engellerseniz sepet sayfalar arasında hatırlanmaz; sitenin geri kalanı çalışmaya devam eder.</p>
             <ul class="legal-list">
               <li>Chrome: Ayarlar › Gizlilik ve güvenlik › Üçüncü taraf çerezleri / Site verileri</li>
@@ -106,13 +111,14 @@
   </div>
 
   <script src="assets/vendor/supabase.min.js"></script>
-  <script src="assets/js/config.js?v=202611212130"></script>
-  <script src="assets/js/data.js?v=202611212130"></script>
-  <script src="assets/js/store.js?v=202611212130"></script>
-  <script src="assets/js/app.js?v=202611212130"></script>
+  <script src="assets/js/config.js?v=202611221230"></script>
+  <script src="assets/js/data.js?v=202611221230"></script>
+  <script src="assets/js/store.js?v=202611221230"></script>
+  <script src="assets/js/app.js?v=202611221230"></script>
+  <script src="assets/js/analytics.js?v=202611221230"></script>
   <script src="assets/vendor/gsap.min.js"></script>
   <script src="assets/vendor/ScrollTrigger.min.js"></script>
   <script src="assets/vendor/ScrollSmoother.min.js"></script>
-  <script src="assets/js/motion.js?v=202611212130"></script>
+  <script src="assets/js/motion.js?v=202611221230"></script>
 </body>
 </html>
