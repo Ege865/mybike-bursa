@@ -427,7 +427,7 @@
         const list = productsIn(id);
         const pic = list.find((p) => p.img);
         return `<a class="cat-tile" href="${shopUrl(id)}">
-          <div class="frame">${ph(pic && pic.img, c.name + " görseli", { alt: c.name })}</div>
+          <div class="frame">${pic ? ph(pic.img, c.name + " görseli", { alt: c.name }) : `<div class="ph ph--dark has-img cat-fallback"><img src="assets/img/logo.jpg" alt="" loading="lazy" decoding="async"></div>`}</div>
           <div class="cat-tile-body">
             <div><h3>${esc(c.name)}</h3><p>${list.length ? list.length + " ürün" : "Yakında"}</p></div>
             <span class="round-arrow" aria-hidden="true">${icon("arrow")}</span>

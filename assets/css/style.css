@@ -831,3 +831,10 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
 .doc-cta h2 { margin: 0 0 4px !important; color: var(--on-dark) !important; font-size: 21px; }
 .doc-cta p { margin: 0 !important; color: var(--on-dark-muted); }
 mark.fill { background: #f6e7a8; }
+
+/* Ürün fotoğrafı olmayan kategori kutusu: koyu zeminde logo */
+.cat-fallback { background: var(--dark); }
+.cat-fallback img { object-fit: contain; padding: 18%; }
+
+/* Gerçek fotoğraflı hero: yazının okunması için alttan da karart */
+.hero-main:has(.has-img)::after { background: linear-gradient(0deg, rgba(20,19,17,.9) 0%, rgba(20,19,17,.55) 45%, rgba(20,19,17,.1) 80%), linear-gradient(90deg, rgba(20,19,17,.55), rgba(20,19,17,0) 70%); }
