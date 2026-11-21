@@ -422,6 +422,33 @@
     }
   }
 
+  /* ---- SEO: sayfaya göre açıklama, kanonik adres ve yapılandırılmış veri ---- */
+  const SITE = "https://www.mybikestore.com.tr/";
+  function setSeo({ title, desc, path, image, ld }) {
+    const set = (sel, attr, val, make) => {
+      let el = document.head.querySelector(sel);
+      if (!el && make) { el = make(); document.head.appendChild(el); }
+      if (el && val) el.setAttribute(attr, val);
+    };
+    const meta = (k, v) => () => { const m = document.createElement("meta"); m.setAttribute(k, v); return m; };
+    if (title) { set('meta[property="og:title"]', "content", title, meta("property", "og:title")); }
+    if (desc) {
+      set('meta[name="description"]', "content", desc, meta("name", "description"));
+      set('meta[property="og:description"]', "content", desc, meta("property", "og:description"));
+    }
+    if (path != null) {
+      const url = SITE + path;
+      set('link[rel="canonical"]', "href", url, () => { const l = document.createElement("link"); l.rel = "canonical"; return l; });
+      set('meta[property="og:url"]', "content", url, meta("property", "og:url"));
+    }
+    if (image) set('meta[property="og:image"]', "content", new URL(image, SITE).href, meta("property", "og:image"));
+    if (ld) {
+      let s = document.getElementById("ld-page");
+      if (!s) { s = document.createElement("script"); s.type = "application/ld+json"; s.id = "ld-page"; document.head.appendChild(s); }
+      s.textContent = JSON.stringify(ld);
+    }
+  }
+
   /* ---------------- Sayfa: Mağaza ---------------- */
   function renderShop() {
     const qs = new URLSearchParams(location.search);
@@ -437,6 +464,11 @@
     const kn = kat ? nodes.get(kat).node : null;
     const lead = kat ? (kn.lead || kn.note || (kn.children ? kn.children.map((c) => c.name).join(", ") + "." : `${nodes.get(kat).parent.name} kategorisinde ${kn.name.toLocaleLowerCase("tr")}.`)) :"Bisikletler, yedek parça, koruma ekipmanı ve aksesuarlar.";
     document.title = `${title} | My Bike Bursa`;
+    setSeo({
+      title: document.title,
+      desc: kat ? `${catName(kat)}: ${String(lead).replace(/[.!?]?\s*$/, ".")} My Bike Bursa'da downhill ve enduro odaklı ürünler.` : null,
+      path: kat && !q ? `magaza.html?kat=${kat}` : "magaza.html"
+    });
 
     $("[data-crumbs]").innerHTML = `<a href="index.html">Ana sayfa</a><span aria-hidden="true">/</span><a href="magaza.html">Mağaza</a>` +
       trail.map((n, i) => `<span aria-hidden="true">/</span>${i === trail.length - 1 ? `<span aria-current="page">${esc(n.name)}</span>` : `<a href="${shopUrl(n.id)}">${esc(n.name)}</a>`}`).join("");
@@ -518,6 +550,31 @@
     }
     document.title = `${p.name} | My Bike Bursa`;
     const trail = pathTo(p.cat);
+    {
+      const used = isUsed(p);
+      const pImgs = p.images || (p.img ? [p.img] : []);
+      const ld = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: p.name,
+        category: trail.map((n) => n.name).join(" > "),
+        url: `${SITE}urun.html?id=${encodeURIComponent(p.id)}`,
+        brand: { "@type": "Brand", name: p.name.split(" ")[0] },
+        itemCondition: used ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition"
+      };
+      if (pImgs.length) ld.image = pImgs.map((u) => new URL(u, SITE).href);
+      if (p.price != null) ld.offers = {
+        "@type": "Offer", price: p.price, priceCurrency: "TRY", availability: "https://schema.org/InStock",
+        itemCondition: ld.itemCondition, seller: { "@id": `${SITE}#isletme`, "@type": "BicycleStore", name: "My Bike Bursa" }
+      };
+      setSeo({
+        title: document.title,
+        desc: `${p.name}${used ? " (ikinci el)" : ""} — ${trail.map((n) => n.name).join(", ")}. My Bike Bursa'da; bilgi ve sipariş için WhatsApp'tan yazın.`,
+        path: `urun.html?id=${encodeURIComponent(p.id)}`,
+        image: pImgs[0],
+        ld
+      });
+    }
     $("[data-crumbs]").innerHTML = `<a href="index.html">Ana sayfa</a>` +
       trail.map((n) => `<span aria-hidden="true">/</span><a href="${shopUrl(n.id)}">${esc(n.name)}</a>`).join("") +
       `<span aria-hidden="true">/</span><span aria-current="page">${esc(p.name)}</span>`;
