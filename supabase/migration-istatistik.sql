@@ -14,15 +14,30 @@ create table if not exists public.analytics_events (
   visitor    uuid not null,
   session    uuid not null,
   type       text not null check (type in ('pageview', 'cart_add', 'wa_order', 'wa_appointment', 'wa_contact')),
-  page       text check (char_length(page) <= 40),
-  item       text check (char_length(item) <= 80)
+  page       text check (page ~ '^[a-z0-9-]{1,40}$'),
+  item       text check (char_length(item) <= 80 and item !~ '[<>"''`]')
 );
 create index if not exists analytics_events_created_idx on public.analytics_events (created_at);
+create index if not exists analytics_events_visitor_idx on public.analytics_events (visitor, created_at);
 
--- Tarihi ziyaretçi değil sunucu belirler
+-- Tarihi ziyaretçi değil sunucu belirler + hız sınırı (bot koruması):
+--   • bir ziyaretçi numarasından dakikada en fazla 30 kayıt
+--   • tüm siteden dakikada en fazla 600 kayıt
+-- Sınırı aşan kayıtlar hata vermeden sessizce atılır.
 create or replace function public.analytics_stamp()
-returns trigger language plpgsql as $$
-begin new.created_at = now(); return new; end $$;
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  new.created_at = now();
+  if (select count(*) from public.analytics_events
+      where visitor = new.visitor and created_at > now() - interval '1 minute') >= 30 then
+    return null;
+  end if;
+  if (select count(*) from public.analytics_events
+      where created_at > now() - interval '1 minute') >= 600 then
+    return null;
+  end if;
+  return new;
+end $$;
 drop trigger if exists analytics_stamp on public.analytics_events;
 create trigger analytics_stamp before insert on public.analytics_events
   for each row execute function public.analytics_stamp();

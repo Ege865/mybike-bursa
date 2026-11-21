@@ -38,6 +38,9 @@
   }
 
   /* ---------- Giriş ---------- */
+  const LOCK_KEY = "mybike-admin-lock";
+  const readLock = () => { try { return JSON.parse(localStorage.getItem(LOCK_KEY)) || { fails: 0, until: 0 }; } catch (e) { return { fails: 0, until: 0 }; } };
+  const writeLock = (v) => { try { localStorage.setItem(LOCK_KEY, JSON.stringify(v)); } catch (e) {} };
   function renderLogin(msg = "", cls = "err") {
     who.innerHTML = "";
     app.innerHTML = `
@@ -53,10 +56,28 @@
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = f.querySelector("button"); const out = f.querySelector(".a-msg");
+      // Art arda hatalı denemede bekleme: 5 hatadan sonra 2 dk, sonraki her hatada süre ikiye katlanır (en fazla 30 dk).
+      // Supabase de sunucu tarafında IP başına giriş denemelerini sınırlar.
+      const lock = readLock();
+      if (lock.until > Date.now()) {
+        out.className = "a-msg err";
+        out.textContent = `Çok fazla hatalı deneme. ${Math.ceil((lock.until - Date.now()) / 60000)} dakika sonra tekrar deneyin.`;
+        return;
+      }
       btn.disabled = true; out.className = "a-msg"; out.textContent = "Giriş yapılıyor…";
       const { error } = await db.auth.signInWithPassword({ email: f.email.value.trim(), password: f.pass.value });
       btn.disabled = false;
-      if (error) { out.className = "a-msg err"; out.textContent = "E-posta ya da şifre hatalı."; return; }
+      if (error) {
+        const fails = lock.fails + 1;
+        const until = fails >= 5 ? Date.now() + Math.min(30, 2 * 2 ** (fails - 5)) * 60000 : 0;
+        writeLock({ fails, until });
+        out.className = "a-msg err";
+        out.textContent = /rate|too many/i.test(error.message) ? "Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar deneyin."
+          : until ? "E-posta ya da şifre hatalı. Güvenlik için bir süre beklemeniz gerekiyor."
+          : `E-posta ya da şifre hatalı. (${5 - fails} deneme hakkı kaldı)`;
+        return;
+      }
+      writeLock({ fails: 0, until: 0 });
       start();
     });
   }
