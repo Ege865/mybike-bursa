@@ -847,3 +847,8 @@ mark.fill { background: #f6e7a8; }
 .consent-actions { display: flex; gap: 10px; flex: 0 0 auto; }
 .consent-actions .btn { min-height: 44px; }
 @media (max-width: 560px) { .consent-actions { width: 100%; } .consent-actions .btn { flex: 1; } }
+
+/* Footer: site yapımcısı */
+.foot-bottom .credit { flex-basis: 100%; font-size: 12px; color: #6f6e67; }
+.foot-bottom .credit a { min-height: 0; display: inline; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.foot-bottom .credit a:hover { color: var(--on-dark-muted); }

@@ -294,6 +294,7 @@
       <div class="foot-bottom"><div class="wrap">
         <span>© ${new Date().getFullYear()} My Bike Bursa. Tüm hakları saklıdır.</span>
         <span><a class="link" href="kvkk-aydinlatma.html">KVKK Aydınlatma Metni</a> &nbsp;·&nbsp; <a class="link" href="gizlilik-cerez.html">Gizlilik ve Çerez Politikası</a> &nbsp;·&nbsp; <a class="link" href="#" data-consent-open>Çerez tercihleri</a> &nbsp;·&nbsp; <a class="link" href="atolye.html">Hakkımızda</a> &nbsp;·&nbsp; <a class="link" href="rehber.html">Beden ve uyumluluk</a> &nbsp;·&nbsp; <a class="link" href="sss.html">SSS</a> &nbsp;·&nbsp; <a class="link" href="atolye.html#randevu">İletişim</a></span>
+        <span class="credit">Web sitesi tasarımı ve yapımı: <a href="tel:+905550459337">0555 045 93 37</a></span>
       </div></div>
     </footer>`;
   }
