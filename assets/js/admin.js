@@ -216,7 +216,7 @@
   }
 
   /* ---------- Liste ---------- */
-  function renderList(msg = "") {
+  function renderList(msg = "", err = "") {
     const q = filter.toLocaleLowerCase("tr");
     const list = products.filter((p) => !q || (p.name + " " + catLabel(p.cat)).toLocaleLowerCase("tr").includes(q));
     app.innerHTML = `
@@ -228,7 +228,7 @@
           <button class="btn" type="button" id="add">+ Ürün ekle</button>
         </div>
       </div>
-      <p class="a-msg ok" role="status">${esc(msg)}</p>
+      <p class="a-msg ${err ? "err" : "ok"}" role="status">${esc(err || msg)}</p>
       <table class="a-table">
         <thead><tr><th>Görsel</th><th>Ürün</th><th class="hide-s">Kategori</th><th>Fiyat</th><th class="hide-s">Durum</th><th><span class="sr-only">İşlemler</span></th></tr></thead>
         <tbody>${list.map((p) => `
@@ -252,10 +252,33 @@
     app.querySelectorAll("[data-del]").forEach((b) => (b.onclick = () => removeProduct(products.find((p) => p.id === b.dataset.del))));
   }
 
+  // Tarayıcının confirm() penceresi yüklenen uygulamada ve bazı telefon tarayıcılarında çıkmayabiliyor; sayfa içi onay kullanılır
+  function ask(title, text, okLabel) {
+    return new Promise((resolve) => {
+      let dlg = document.getElementById("ask-dlg");
+      if (!dlg) { dlg = document.createElement("dialog"); dlg.id = "ask-dlg"; dlg.className = "a-dlg a-ask"; document.body.appendChild(dlg); }
+      dlg.innerHTML = `<div class="a-ask-body"><h2>${esc(title)}</h2><p>${esc(text)}</p>
+        <div class="a-foot"><button class="btn btn--ghost" type="button" data-no>Vazgeç</button><button class="btn btn--dark a-danger" type="button" data-yes>${esc(okLabel)}</button></div></div>`;
+      const done = (v) => { dlg.close(); resolve(v); };
+      dlg.querySelector("[data-no]").onclick = () => done(false);
+      dlg.querySelector("[data-yes]").onclick = () => done(true);
+      dlg.oncancel = (e) => { e.preventDefault(); done(false); };
+      dlg.showModal();
+      dlg.querySelector("[data-no]").focus();
+    });
+  }
+
   async function removeProduct(p) {
-    if (!p || !confirm(`"${p.name}" silinsin mi? Bu işlem geri alınamaz.`)) return;
-    const { error } = await db.from("products").delete().eq("id", p.id);
-    if (error) return alert("Silinemedi: " + error.message);
+    if (!p) return;
+    if (!(await ask("Ürün silinsin mi?", `"${p.name}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`, "Sil"))) return;
+    // .select(): veritabanı silmeyi yetki nedeniyle sessizce reddederse boş döner; bunu hata olarak göster
+    const { data, error } = await db.from("products").delete().eq("id", p.id).select("id");
+    if (error) return renderList("", `"${p.name}" silinemedi: ${error.message}`);
+    if (!data || !data.length) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) return renderLogin("Oturumun süresi dolmuş. Tekrar giriş yapın.");
+      return renderList("", `"${p.name}" silinemedi: veritabanı bu hesaba silme izni vermedi. Hesabın yönetici olarak tanımlı olduğundan emin olun.`);
+    }
     products = products.filter((x) => x.id !== p.id);
     renderList(`"${p.name}" silindi.`);
   }
