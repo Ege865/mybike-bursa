@@ -419,7 +419,7 @@ main { padding-top: var(--header-h); }
 .foot-grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr) 1.3fr; gap: 40px; padding-block: 64px 48px; }
 .foot-brand p { color: var(--on-dark-muted); font-size: 14.5px; margin-top: 18px; max-width: 34ch; }
 .foot-brand address { font-style: normal; color: var(--on-dark-muted); font-size: 14.5px; margin-top: 16px; display: grid; gap: 6px; }
-.site-footer h4 { font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 14px; color: var(--on-dark); }
+.site-footer .foot-h { font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 14px; color: var(--on-dark); }
 .site-footer li a { display: inline-block; padding: 5px 0; color: var(--on-dark-muted); font-size: 14.5px; transition: color var(--t-fast); }
 .site-footer li a:hover { color: var(--on-dark); }
 .newsletter p { color: var(--on-dark-muted); font-size: 14.5px; margin-bottom: 14px; }
@@ -652,7 +652,7 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
   :root { --header-h: 128px; }
   .mainnav { display: none; }
   .menu-btn { display: inline-flex; }
-  .icon-btn .label { display: none; }
+  .icon-btn .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .topbar .wrap { grid-template-columns: auto auto; justify-content: space-between; gap: 16px; min-height: 64px; }
   .topbar .search { grid-column: 1 / -1; grid-row: 2; max-width: none; margin-bottom: 12px; }
   .topbar .search input { height: 42px; }
@@ -849,7 +849,7 @@ mark.fill { background: #f6e7a8; }
 @media (max-width: 560px) { .consent-actions { width: 100%; } .consent-actions .btn { flex: 1; } }
 
 /* Footer: site yapımcısı */
-.foot-bottom .credit { flex-basis: 100%; font-size: 12px; color: #6f6e67; }
+.foot-bottom .credit { flex-basis: 100%; font-size: 12px; color: #a3a299; }
 .foot-bottom .credit a { min-height: 0; display: inline; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .foot-bottom .credit a:hover { color: var(--on-dark-muted); }
 

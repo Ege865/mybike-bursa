@@ -46,7 +46,7 @@
     if (hero) {
       const tl = gsap.timeline({ defaults: { ease: "expo.out", duration: 1.1 } });
       tl.from(hero.querySelectorAll("[data-enter-item]"), { y: 28, opacity: 0, stagger: 0.08 })
-        .from(hero.querySelectorAll("[data-enter-media]"), { opacity: 0, scale: 1.04, stagger: 0.1, duration: 1.4 }, 0);
+        .from(hero.querySelectorAll("[data-enter-media]"), { scale: 1.04, stagger: 0.1, duration: 1.4 }, 0);
     }
 
     // Bölüm başlıkları: tek seferlik, kısa ve sakin

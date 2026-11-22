@@ -98,10 +98,18 @@
   const icon = (name, extra = "") =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${P[name] || ""}</svg>`;
 
+  /* Sitedeki hazır fotoğraflar WebP olarak iki boyutta sunulur (480 ve 900 piksel) */
+  const LOCAL_IMG = /^assets\/img\/(atolye|disiplin|urunler)\/([a-z0-9-]+)\.jpg$/;
+  function imgAttrs(img, sizes) {
+    const m = LOCAL_IMG.exec(img);
+    if (!m) return `src="${esc(img)}"`;
+    const base = `assets/img/${m[1]}/${m[2]}`;
+    return `src="${base}.webp" srcset="${base}-480.webp 480w, ${base}.webp 900w" sizes="${sizes || "(max-width: 720px) 50vw, 300px"}"`;
+  }
   /* ---------------- Görsel alanı ("Görsel eklenecek") ---------------- */
   function ph(img, hint, opts = {}) {
     const cls = ["ph", opts.dark ? "ph--dark" : "", opts.corner ? "ph--corner" : ""].join(" ").trim();
-    if (img) return `<div class="${cls} has-img"><img src="${esc(img)}" alt="${esc(opts.alt || hint || "")}" loading="lazy" decoding="async"></div>`;
+    if (img) return `<div class="${cls} has-img"><img ${imgAttrs(img, opts.sizes)} alt="${esc(opts.alt || hint || "")}" loading="lazy" decoding="async"></div>`;
     return `<div class="${cls}" role="img" aria-label="Görsel eklenecek: ${esc(hint || "")}">${icon(opts.icon || "image")}<b>Görsel eklenecek</b>${hint ? `<small>${esc(hint)}</small>` : ""}</div>`;
   }
   /* HTML içinde <div data-ph="ipucu" data-ph-dark data-ph-corner></div> yazılan alanları doldurur */
@@ -110,7 +118,8 @@
       el.outerHTML = ph(el.dataset.img, el.dataset.ph, {
         dark: el.hasAttribute("data-ph-dark"),
         corner: el.hasAttribute("data-ph-corner"),
-        icon: el.dataset.phIcon || "camera"
+        icon: el.dataset.phIcon || "camera",
+        sizes: el.dataset.sizes
       });
     });
   }
@@ -214,7 +223,7 @@
       </div></div>
       <div class="topbar"><div class="wrap">
         <a class="logo" href="index.html" aria-label="My Bike ana sayfa">
-          <img src="assets/img/logo.jpg" alt="My Bike" width="58" height="62">
+          <img src="assets/img/logo.webp" alt="My Bike" width="58" height="62">
           <span class="logo-text"><span>Bursa</span><span>Downhill · Enduro</span></span>
         </a>
         <form class="search" role="search" action="magaza.html">
@@ -223,8 +232,8 @@
           <button type="submit" aria-label="Ara">${icon("search")}</button>
         </form>
         <div class="actions">
-          <a class="icon-btn" href="atolye.html" ${page === "atolye" ? 'aria-current="page"' : ""}>${icon("wrench")}<span class="label">Atölye</span></a>
-          <button class="icon-btn" type="button" data-cart-open aria-label="Sepeti aç">${icon("bag")}<span class="cart-count" data-cart-count>0</span><span class="label">Sepet</span></button>
+          <a class="icon-btn" href="atolye.html" aria-label="Atölye" ${page === "atolye" ? 'aria-current="page"' : ""}>${icon("wrench")}<span class="label">Atölye</span></a>
+          <button class="icon-btn" type="button" data-cart-open>${icon("bag")}<span class="cart-count" data-cart-count>0</span><span class="label"> Sepet</span></button>
           <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Menüyü aç">${icon("menu")}</button>
         </div>
       </div></div>
@@ -278,15 +287,15 @@
     <footer class="site-footer on-dark">
       <div class="wrap foot-grid">
         <div class="foot-brand">
-          <a class="logo" href="index.html" aria-label="My Bike ana sayfa"><img src="assets/img/logo.jpg" alt="My Bike" width="104" height="112" loading="lazy"></a>
+          <a class="logo" href="index.html" aria-label="My Bike ana sayfa"><img src="assets/img/logo.webp" alt="My Bike" width="104" height="112" loading="lazy"></a>
           <p>Downhill ve enduro bisikletleri, yedek parça ve koruma ekipmanı. Bursa'daki atölyemizde servis ve set-up.</p>
           <address><span>${esc(CONTACT.area)}</span><a class="link" href="mailto:${CONTACT.email}" style="justify-self:start">${esc(CONTACT.emailLabel)}</a></address>
         </div>
-        <div><h4>${esc(bikes.name)}</h4><ul>${links(bikes)}</ul></div>
-        <div><h4>${esc(parts.name)}</h4><ul>${links(parts)}</ul></div>
-        <div><h4>Ekipman</h4><ul>${links(prot)}<li><a href="${shopUrl(acc.id)}">${esc(acc.name)}</a></li></ul></div>
+        <div><h2 class="foot-h">${esc(bikes.name)}</h2><ul>${links(bikes)}</ul></div>
+        <div><h2 class="foot-h">${esc(parts.name)}</h2><ul>${links(parts)}</ul></div>
+        <div><h2 class="foot-h">Ekipman</h2><ul>${links(prot)}<li><a href="${shopUrl(acc.id)}">${esc(acc.name)}</a></li></ul></div>
         <div class="newsletter">
-          <h4>Atölye</h4>
+          <h2 class="foot-h">Atölye</h2>
           <p>${esc(CONTACT.hours)}<br>${esc(CONTACT.area)}</p>
           <a class="btn" href="atolye.html#randevu">Randevu al ${icon("arrow")}</a>
         </div>
@@ -432,7 +441,7 @@
         const list = productsIn(id);
         const pic = list.find((p) => p.img);
         return `<a class="cat-tile" href="${shopUrl(id)}">
-          <div class="frame">${pic ? ph(pic.img, c.name + " görseli", { alt: c.name }) : `<div class="ph ph--dark has-img cat-fallback"><img src="assets/img/logo.jpg" alt="" loading="lazy" decoding="async"></div>`}</div>
+          <div class="frame">${pic ? ph(pic.img, c.name + " görseli", { alt: c.name }) : `<div class="ph ph--dark has-img cat-fallback"><img src="assets/img/logo.webp" alt="" loading="lazy" decoding="async"></div>`}</div>
           <div class="cat-tile-body">
             <div><h3>${esc(c.name)}</h3><p>${list.length ? list.length + " ürün" : "Yakında"}</p></div>
             <span class="round-arrow" aria-hidden="true">${icon("arrow")}</span>
@@ -608,7 +617,7 @@
     let qty = 1;
     root.innerHTML = `
       <div class="gallery">
-        <div class="main frame">${ph(imgs[0] || p.img, "Ürün fotoğrafı — ana görsel", { alt: p.name })}</div>
+        <div class="main frame">${ph(imgs[0] || p.img, "Ürün fotoğrafı — ana görsel", { alt: p.name, sizes: "(max-width: 720px) 100vw, 50vw" })}</div>
         ${imgs.length > 1 ? `<div class="thumbs">${imgs.slice(0, 4).map((src, i) => `<button type="button" aria-pressed="${i === 0}" aria-label="${i + 1}. görseli göster">${ph(src, "", { alt: "" })}</button>`).join("")}</div>` : ""}
       </div>
       <div class="buy">
