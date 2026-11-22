@@ -9,8 +9,14 @@
   <title>Yönetim Paneli | My Bike Bursa</title>
   <meta name="theme-color" content="#0b0b0a">
   <link rel="icon" href="assets/img/favicon-64.png" type="image/png">
-  <link rel="stylesheet" href="assets/css/fonts.css?v=202611221600">
-  <link rel="stylesheet" href="assets/css/style.css?v=202611221600">
+  <link rel="manifest" href="admin.webmanifest">
+  <link rel="apple-touch-icon" href="assets/img/app/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="My Bike Panel">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="stylesheet" href="assets/css/fonts.css?v=202611221800">
+  <link rel="stylesheet" href="assets/css/style.css?v=202611221800">
   <style>
     body { background: var(--bg); }
     .a-top { background: var(--dark); color: var(--on-dark); }
@@ -95,21 +101,34 @@
     .a-list li b { font-variant-numeric: tabular-nums; }
     @media (max-width: 980px) { .a-kpis { grid-template-columns: 1fr 1fr; } .a-two { grid-template-columns: 1fr; } }
     @media (max-width: 720px) { .a-top .hide-s { display: none; } .a-chart { gap: 1px; } }
+    .a-top-right { display: flex; align-items: center; gap: 12px; }
+    .a-installed { font-size: 13.5px; color: var(--on-dark-muted); }
+    .a-install-btn svg { flex: none; }
+    .a-install-steps { display: grid; gap: 16px; padding: clamp(20px, 3vw, 32px); }
+    .a-install-steps .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .a-install-steps h2 { font-size: 22px; }
+    .a-install-steps ol { display: grid; gap: 10px; padding-left: 22px; margin: 0; list-style: decimal; line-height: 1.5; }
+    @media (max-width: 720px) {
+      .a-install-btn span { display: none; }
+      .a-install-btn { width: 44px; padding: 0; justify-content: center; }
+      .a-top .logo-text { display: none; }
+    }
   </style>
 </head>
 <body data-page="admin">
   <header class="a-top on-dark"><div class="wrap">
     <a class="logo" href="index.html" aria-label="Siteye dön"><img src="assets/img/logo.jpg" alt="My Bike" width="48" height="52"><span class="logo-text"><span>Yönetim</span><span>Paneli</span></span></a>
-    <div class="who" id="who"></div>
+    <div class="a-top-right"><div id="install"></div><div class="who" id="who"></div></div>
   </div></header>
 
   <main class="a-main"><div class="wrap" id="app"></div></main>
 
   <script src="assets/vendor/supabase.min.js"></script>
-  <script src="assets/js/config.js?v=202611221600"></script>
-  <script src="assets/js/data.js?v=202611221600"></script>
-  <script src="assets/js/store.js?v=202611221600"></script>
-  <script src="assets/js/app.js?v=202611221600"></script>
-  <script src="assets/js/admin.js?v=202611221600"></script>
+  <script src="assets/js/config.js?v=202611221800"></script>
+  <script src="assets/js/data.js?v=202611221800"></script>
+  <script src="assets/js/store.js?v=202611221800"></script>
+  <script src="assets/js/app.js?v=202611221800"></script>
+  <script src="assets/js/admin-install.js?v=202611221840"></script>
+  <script src="assets/js/admin.js?v=202611221800"></script>
 </body>
 </html>
