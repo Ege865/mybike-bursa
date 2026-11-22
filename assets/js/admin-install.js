@@ -5,6 +5,7 @@
    ========================================================================== */
 (function () {
   "use strict";
+  ["gesturestart", "gesturechange"].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
   const slot = document.getElementById("install");
   if (!slot) return;
 

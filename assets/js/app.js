@@ -698,6 +698,9 @@
   const page = document.body.dataset.page;
   if (page === "admin") return; // yönetim paneli kendi arayüzünü kurar
 
+  // Eski iPhone'larda iki parmakla yakınlaştırmayı engelle (viewport ayarını yok sayan sürümler için)
+  ["gesturestart", "gesturechange"].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+
   renderHeader();
   renderFooter();
   hydratePlaceholders();
