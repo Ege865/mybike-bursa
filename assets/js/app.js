@@ -479,15 +479,11 @@
   }
 
   /* ---------------- Sayfa: Mağaza ---------------- */
-  function renderShop() {
+  /* Mağaza başlığı ve yol menüsü ürün listesine bağlı değil; ürünler gelmeden yazılır ki sayfa kaymasın */
+  function shopHead() {
     const qs = new URLSearchParams(location.search);
     const kat = nodes.get(qs.get("kat")) ? qs.get("kat") : null;
     const q = (qs.get("q") || "").trim();
-    const sort = qs.get("sirala") || "onerilen";
-    const min = Number(qs.get("min")) || 0;
-    const max = Number(qs.get("max")) || 0;
-    const durum = DURUM[qs.get("durum")] ? qs.get("durum") : "";
-
     const trail = kat ? pathTo(kat) : [];
     const title = q ? `“${q}” için sonuçlar` : kat ? catName(kat) : "Tüm ürünler";
     const kn = kat ? nodes.get(kat).node : null;
@@ -503,6 +499,18 @@
       trail.map((n, i) => `<span aria-hidden="true">/</span>${i === trail.length - 1 ? `<span aria-current="page">${esc(n.name)}</span>` : `<a href="${shopUrl(n.id)}">${esc(n.name)}</a>`}`).join("");
     $("[data-title]").innerHTML = `<div><h1>${esc(title)}</h1><p>${esc(lead || "")}</p></div>
       <button class="btn btn--ghost filter-toggle" type="button" aria-expanded="false" aria-controls="filters">${icon("sliders")} Kategoriler ve filtre</button>`;
+    return trail;
+  }
+
+  function renderShop() {
+    const qs = new URLSearchParams(location.search);
+    const kat = nodes.get(qs.get("kat")) ? qs.get("kat") : null;
+    const q = (qs.get("q") || "").trim();
+    const sort = qs.get("sirala") || "onerilen";
+    const min = Number(qs.get("min")) || 0;
+    const max = Number(qs.get("max")) || 0;
+    const durum = DURUM[qs.get("durum")] ? qs.get("durum") : "";
+    const trail = shopHead();
 
     // Filtre ağacı
     const openSet = new Set(trail.map((n) => n.id));
@@ -719,6 +727,7 @@
   // SSS açılıp kapanınca yumuşak kaydırmanın sayfa yüksekliğini güncelle
   $$("details").forEach((d) => d.addEventListener("toggle", () => { if (window.ScrollTrigger) ScrollTrigger.refresh(); }));
 
+  if (page === "shop") shopHead();
   // Ürünler Supabase'den gelir (assets/js/store.js); gelmezse data.js'teki liste kullanılır
   Promise.resolve(window.MYBIKE.ready).catch(() => {}).then(() => {
     if (page === "home") renderHome();

@@ -31,7 +31,7 @@
 
   --wrap: 1320px;
   --gutter: clamp(16px, 3vw, 32px);
-  --header-h: 168px;
+  --header-h: 171px;
 
   --shadow-1: 0 1px 2px rgba(24, 23, 21, .06), 0 4px 14px rgba(24, 23, 21, .06);
   --shadow-2: 0 2px 4px rgba(24, 23, 21, .06), 0 14px 34px rgba(24, 23, 21, .12);
@@ -657,7 +657,7 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
   .topbar .search { grid-column: 1 / -1; grid-row: 2; max-width: none; margin-bottom: 12px; }
   .topbar .search input { height: 42px; }
   .topbar .search button { width: 34px; height: 34px; }
-  :root { --header-h: 174px; }
+  :root { --header-h: 164px; }
 
   .hero-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; height: auto; }
   .hero-main { grid-column: 1 / -1; grid-row: auto; min-height: clamp(460px, 70svh, 600px); }
@@ -801,8 +801,8 @@ body.menu-open .mnav { opacity: 1; visibility: visible; transform: none; transit
 /* Stok durumu */
 .stock { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
 .stock::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
-.stock--stokta { color: #2f7d4a; }
-.stock--siparis { color: #a86a00; }
+.stock--stokta { color: #24653a; }
+.stock--siparis { color: #855200; }
 .stock--satildi { color: var(--muted); }
 .p-card .stock { margin-top: 6px; }
 .p-card.is-sold .frame { opacity: .55; filter: grayscale(1); }
@@ -857,3 +857,8 @@ mark.fill { background: #f6e7a8; }
 html, body { touch-action: pan-x pan-y; }
 /* iPhone, 16px'ten küçük yazılı kutulara dokununca sayfayı büyütür: kutular en az 16px */
 @media (max-width: 720px) { input, select, textarea { font-size: 16px !important; } }
+
+/* Mağaza: ürünler veritabanından gelene kadar liste alanı yer tutar (sayfa kaymasın) */
+.p-grid[data-grid]:empty { min-height: 120vh; }
+.pdp[data-pdp]:empty { min-height: 140vh; }
+.p-grid[data-related]:empty { min-height: 420px; }
